@@ -40,7 +40,7 @@ schema and let Plasmid Oracle perform the biological checks.
 - readable Python summaries, feature queries, and optional DataFrame export;
 - complete tool/database provenance, database manifest digests, and partial-run
   manifests;
-- schema-versioned JSON round trips with schema-1 migration;
+- schema-versioned JSON round trips with schema-1 and schema-2 migration;
 - content-addressed provider caching keyed by sequence, parameters, tools, and
   databases;
 - bounded provider concurrency and an asynchronous Python entry point;
@@ -294,6 +294,9 @@ plasmid-oracle batch \
 Each input line is a JSON object with `sequence` or `seq`, optional `id`, and
 optional `topology`. Batch mode writes one terminal record per plasmid and a
 final manifest line with input, output, and record checksums.
+On resume, terminal records are reused only when the current input checksum and
+stored output checksum still validate. Stale records are dropped and malformed
+existing JSONL fails fast.
 
 ## Canonical Result
 

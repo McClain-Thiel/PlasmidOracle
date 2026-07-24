@@ -69,7 +69,7 @@ from plasmid_oracle.pipeline import (
 from plasmid_oracle.resolution import resolve_annotations
 from plasmid_oracle.serialization import from_dict, from_json, to_dict, to_json
 
-__version__ = "0.2.0a1"
+__version__ = "0.2.0a2"
 
 __all__ = [
     "AnalysisManifest",

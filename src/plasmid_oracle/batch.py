@@ -64,6 +64,13 @@ class _InputRecord:
     error: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class _ResumeState:
+    completed: Mapping[str, str]
+    kept_records: int = 0
+    dropped_stale_records: int = 0
+
+
 def _canonical_json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
 
@@ -100,37 +107,96 @@ def _atomic_write_lines(path: Path, lines: Iterable[str]) -> None:
         raise
 
 
-def _prepare_output(path: Path, *, resume: bool) -> dict[str, str]:
+def _verify_output_checksum(payload: Mapping[str, object], *, context: str) -> None:
+    recorded_checksum = payload.get("output_sha256")
+    if not isinstance(recorded_checksum, str):
+        raise ValueError(f"{context} is missing output_sha256")
+    normalized = dict(payload)
+    del normalized["output_sha256"]
+    actual_checksum = _digest(normalized)
+    if actual_checksum != recorded_checksum:
+        raise ValueError(f"{context} output_sha256 does not match the record content")
+
+
+def _input_checksums(records: tuple[_InputRecord, ...]) -> dict[str, str]:
+    checksums: dict[str, str] = {}
+    for record in records:
+        existing = checksums.setdefault(record.record_id, record.input_sha256)
+        if existing != record.input_sha256:
+            raise ValueError(
+                "Batch input record IDs must be unique for resume: "
+                f"{record.record_id!r} has multiple input checksums"
+            )
+    return checksums
+
+
+def _prepare_output(
+    path: Path,
+    *,
+    resume: bool,
+    input_checksums: Mapping[str, str],
+) -> _ResumeState:
     if not resume or not path.exists():
         _atomic_write_lines(path, ())
-        return {}
+        return _ResumeState(completed={})
 
     completed: dict[str, str] = {}
     kept_lines: list[str] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    dropped_stale_records = 0
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
         try:
             payload = json.loads(line)
-        except json.JSONDecodeError:
-            continue
+        except json.JSONDecodeError as error:
+            raise ValueError(
+                f"existing output JSONL line {line_number} is not valid JSON: {error.msg}"
+            ) from error
         if not isinstance(payload, dict):
-            continue
+            raise ValueError(f"existing output JSONL line {line_number} must be an object")
         if payload.get("record_type") == "manifest":
             continue
-        kept_lines.append(_canonical_json(payload))
+        if payload.get("record_type") != "record":
+            raise ValueError(
+                f"existing output JSONL line {line_number} has unsupported record_type"
+            )
         status = payload.get("status")
         record_id = payload.get("record_id")
         input_sha = payload.get("input_sha256")
-        if (
-            isinstance(record_id, str)
-            and isinstance(input_sha, str)
-            and isinstance(status, str)
-            and status in _TERMINAL_STATUSES
-        ):
-            completed[record_id] = input_sha
+        if not isinstance(record_id, str) or not record_id:
+            raise ValueError(f"existing output JSONL line {line_number} is missing record_id")
+        if not isinstance(input_sha, str):
+            raise ValueError(f"existing output JSONL line {line_number} is missing input_sha256")
+        if not isinstance(status, str) or status not in _TERMINAL_STATUSES:
+            raise ValueError(f"existing output JSONL line {line_number} has non-terminal status")
+        _verify_output_checksum(
+            payload,
+            context=f"existing output JSONL line {line_number}",
+        )
+        if input_checksums.get(record_id) != input_sha:
+            dropped_stale_records += 1
+            continue
+        kept_lines.append(_canonical_json(payload))
+        completed[record_id] = input_sha
     _atomic_write_lines(path, kept_lines)
-    return completed
+    return _ResumeState(
+        completed=completed,
+        kept_records=len(kept_lines),
+        dropped_stale_records=dropped_stale_records,
+    )
+
+
+def _record_documents(path: Path) -> list[dict[str, object]]:
+    documents: list[dict[str, object]] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        if not isinstance(payload, dict):
+            raise ValueError(f"output JSONL line {line_number} must be an object")
+        if payload.get("record_type") == "record":
+            documents.append(payload)
+    return documents
 
 
 def _read_input_records(path: Path) -> tuple[_InputRecord, ...]:
@@ -341,17 +407,23 @@ def annotate_jsonl(
     output_path = output_path.expanduser()
     input_sha256 = _file_sha256(input_path)
     records = _read_input_records(input_path)
-    completed = _prepare_output(output_path, resume=resume)
+    input_checksums = _input_checksums(records)
+    resume_state = _prepare_output(
+        output_path,
+        resume=resume,
+        input_checksums=input_checksums,
+    )
     selected_providers = tuple(providers) if providers is not None else None
 
     pending = tuple(
-        record for record in records if completed.get(record.record_id) != record.input_sha256
+        record
+        for record in records
+        if resume_state.completed.get(record.record_id) != record.input_sha256
     )
     worker_count = min(record_workers, max(1, len(pending)))
     record_threads = max(1, threads // worker_count)
     record_provider_workers = min(provider_workers, record_threads)
 
-    record_payloads: list[dict[str, object]] = []
     with output_path.open("a", encoding="utf-8") as handle:
         if pending:
             with ThreadPoolExecutor(
@@ -376,22 +448,12 @@ def annotate_jsonl(
                 ]
                 for future in as_completed(futures):
                     payload = future.result()
-                    record_payloads.append(payload)
                     handle.write(_canonical_json(payload))
                     handle.write("\n")
                     handle.flush()
                     os.fsync(handle.fileno())
 
-        kept_records = [
-            json.loads(line)
-            for line in output_path.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
-        record_documents = [
-            item
-            for item in kept_records
-            if isinstance(item, dict) and item.get("record_type") == "record"
-        ]
+        record_documents = _record_documents(output_path)
         statuses = [item.get("status") for item in record_documents]
         records_sha256 = _digest(record_documents)
         summary = BatchSummary(
@@ -417,6 +479,8 @@ def annotate_jsonl(
                 "cache": cache,
                 "cache_dir": str(cache_dir) if cache_dir is not None else None,
                 "resume": resume,
+                "resumed_records": resume_state.kept_records,
+                "dropped_stale_records": resume_state.dropped_stale_records,
             },
         )
         manifest = summary.to_dict()

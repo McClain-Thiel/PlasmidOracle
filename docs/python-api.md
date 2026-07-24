@@ -71,6 +71,11 @@ terminal record per input and a final manifest line. Batch records include
 input checksums, result checksums, completed/partial/failed status, and the
 serialized plasmid when annotation succeeds.
 
+When `resume=True`, prior terminal records are reused only if their
+`record_id`, `input_sha256`, status, and `output_sha256` still validate against
+the current input. Stale records are pruned before processing and reported in
+the manifest parameters; malformed existing JSONL stops the resume.
+
 ## Inspect a result
 
 A `Plasmid` contains:
@@ -160,7 +165,8 @@ schema version and migration behavior.
 Schema 3 serializes stable evidence IDs, normalized concepts, sequence
 variants, provider capabilities, database manifest digests, and cache identity
 when present. Schema 1 and 2 payloads still load through compatibility
-migrations.
+migrations, including legacy annotation and conflict references that predate
+stable `evidence_id` fields.
 
 ## Provider readiness and setup
 

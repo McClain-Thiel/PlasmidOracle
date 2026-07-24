@@ -304,7 +304,9 @@ provider completeness before making absence-based claims.
 Direct Python orchestration is the library default. The JSONL batch API and CLI
 wrap the same single-plasmid pipeline with record-level concurrency, durable
 terminal records, content-addressed provider caching, and a final batch
-manifest.
+manifest. Resume validation keeps only terminal records whose record ID, input
+checksum, terminal status, and output checksum still match the current input;
+stale records are pruned and malformed prior output fails the resume.
 
 In-process APIs are preferred when they are stable and isolate global state.
 CLI-only tools use one controlled runner with:

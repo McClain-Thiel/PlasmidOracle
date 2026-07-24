@@ -96,6 +96,60 @@ def test_schema_one_payload_is_migrated_as_raw_evidence() -> None:
     assert restored.annotations == original.annotations
 
 
+def test_schema_two_conflict_citations_are_migrated_to_stable_evidence_ids() -> None:
+    source = po.AnnotationSource(provider="fixture")
+    left = po.Annotation(
+        annotation_id="legacy:left",
+        feature_type="rep_origin",
+        name="ori",
+        location=po.Location.from_bounds(
+            10,
+            40,
+            sequence_length=100,
+            topology="circular",
+            strand="+",
+        ),
+        source=source,
+    )
+    right = po.Annotation(
+        annotation_id="legacy:right",
+        feature_type="rep_origin",
+        name="ori",
+        location=po.Location.from_bounds(
+            10,
+            40,
+            sequence_length=100,
+            topology="circular",
+            strand="-",
+        ),
+        source=source,
+    )
+    plasmid = po.Plasmid(
+        sequence=po.SequenceInfo.from_raw("A" * 100),
+        evidence=(left, right),
+        annotations=po.resolve_annotations((left, right)),
+        characterization=po.Characterization(),
+        source_metadata={},
+        analysis=po.AnalysisManifest(pipeline_version="test", mode="test"),
+    )
+    legacy_by_stable = {item.evidence_id: item.annotation_id for item in plasmid.evidence}
+    legacy = po.to_dict(plasmid)
+    legacy["schema_version"] = "2"
+    for item in legacy["annotations"]:
+        item["evidence_ids"] = [legacy_by_stable[identifier] for identifier in item["evidence_ids"]]
+        for conflict in item["conflicts"]:
+            conflict["evidence_ids"] = [
+                legacy_by_stable[identifier] for identifier in conflict["evidence_ids"]
+            ]
+
+    restored = po.from_dict(legacy)
+
+    assert restored.annotations[0].conflicts
+    assert restored.annotations[0].conflicts[0].evidence_ids == tuple(
+        item.evidence_id for item in plasmid.evidence
+    )
+
+
 def test_deserialization_rejects_unknown_evidence_references() -> None:
     original = po.annotate(seq=_PBR322, mode="fast")
     payload = po.to_dict(original)

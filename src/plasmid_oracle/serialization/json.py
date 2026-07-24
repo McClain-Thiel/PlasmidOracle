@@ -585,18 +585,30 @@ def _sequence(value: object) -> SequenceInfo:
     return sequence
 
 
-def _conflict(value: object, *, context: str) -> ResolutionConflict:
+def _conflict(
+    value: object,
+    *,
+    evidence_by_id: Mapping[str, Annotation],
+    context: str,
+) -> ResolutionConflict:
     payload = _mapping(value, context=context)
+    evidence_ids = _strings(
+        _required(payload, "evidence_ids", context=context),
+        context=f"{context}.evidence_ids",
+    )
+    missing = tuple(identifier for identifier in evidence_ids if identifier not in evidence_by_id)
+    if missing:
+        rendered = ", ".join(repr(identifier) for identifier in missing)
+        raise InvalidSerializedPlasmidError(
+            f"{context} references missing conflict evidence: {rendered}"
+        )
     return ResolutionConflict(
         code=_string(_required(payload, "code", context=context), context=f"{context}.code"),
         message=_string(
             _required(payload, "message", context=context),
             context=f"{context}.message",
         ),
-        evidence_ids=_strings(
-            _required(payload, "evidence_ids", context=context),
-            context=f"{context}.evidence_ids",
-        ),
+        evidence_ids=tuple(evidence_by_id[identifier].evidence_id for identifier in evidence_ids),
     )
 
 
@@ -645,7 +657,11 @@ def _resolved(
             _string(payload.get("integrity", "unknown"), context=f"{context}.integrity")
         ),
         conflicts=tuple(
-            _conflict(item, context=f"{context}.conflicts item")
+            _conflict(
+                item,
+                evidence_by_id=evidence_by_id,
+                context=f"{context}.conflicts item",
+            )
             for item in _sequence_items(
                 payload.get("conflicts", ()),
                 context=f"{context}.conflicts",

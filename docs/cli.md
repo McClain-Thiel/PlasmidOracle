@@ -58,7 +58,9 @@ Each input line must be a JSON object with `sequence` or `seq`. Optional fields
 are `id`, `topology`, and `source_metadata`. Batch mode writes one terminal
 record per input and a final `manifest` record. Existing completed, partial,
 or failed records are preserved on resume when their input checksum still
-matches.
+matches. Records for changed or removed inputs are dropped before new work
+starts. Malformed existing output lines or records with invalid
+`output_sha256` values stop the resume instead of being ignored.
 
 Batch-specific options:
 

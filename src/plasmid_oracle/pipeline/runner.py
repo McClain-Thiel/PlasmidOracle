@@ -28,7 +28,7 @@ from plasmid_oracle.pipeline.provider import (
 )
 from plasmid_oracle.resolution import resolve_annotations
 
-PIPELINE_VERSION = "0.2.0a1"
+PIPELINE_VERSION = "0.2.0a2"
 
 
 @dataclass(frozen=True, slots=True)
