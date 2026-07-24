@@ -10,6 +10,7 @@ __pycache__/
 build/
 dist/
 htmlcov/
+site/
 .coverage
 
 # Local editor and agent integrations

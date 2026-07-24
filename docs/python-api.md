@@ -1,0 +1,132 @@
+# Python API
+
+The public package is imported as:
+
+```python
+import plasmid_oracle as po
+```
+
+The distribution name is `plasmid-oracle`; Python module names cannot contain
+hyphens.
+
+## Construct a plasmid
+
+```python
+po.plasmid(
+    *,
+    seq: str,
+    topology: str = "circular",
+    source_metadata: Mapping[str, object] | None = None,
+) -> po.Plasmid
+```
+
+Normalizes a sequence and returns an immutable `Plasmid` without running
+providers.
+
+## Annotate
+
+```python
+po.annotate(
+    *,
+    seq: str,
+    topology: str = "circular",
+    mode: str = "minimal",
+    providers: Iterable[AnnotationProvider] | None = None,
+    source_metadata: Mapping[str, object] | None = None,
+    strict: bool = True,
+    threads: int = 1,
+    timeout_seconds: float = 600.0,
+    cache: bool = False,
+    cache_dir: Path | None = None,
+    provider_workers: int = 1,
+) -> po.Plasmid
+```
+
+Runs the requested provider pipeline and resolves its evidence. Supplying
+`providers` replaces the providers selected by `mode`, which is useful for
+testing and custom integrations.
+
+`po.annotate_async(...)` accepts the same arguments and returns an awaitable
+`Plasmid`.
+
+## Inspect a result
+
+A `Plasmid` contains:
+
+| Attribute | Meaning |
+| --- | --- |
+| `sequence` | Normalized DNA, topology, checksums, and sequence warnings |
+| `evidence` | Every provider call before resolution |
+| `annotations` | Deterministically resolved biological features |
+| `characterization` | Replicon, mobility, host-range, and similarity calls |
+| `source_metadata` | Caller-provided source identifiers and context |
+| `analysis` | Pipeline version, provider runs, parameters, and quality flags |
+
+Convenience methods and properties:
+
+```python
+plasmid.features(feature_type="CDS", status="supported")
+plasmid.find("tet")
+plasmid.amr_genes
+plasmid.conflicts
+plasmid.provider_status
+plasmid.analysis_complete
+plasmid.summary()
+plasmid.to_dataframe()
+```
+
+## Evidence and resolution
+
+`Annotation` represents one normalized provider call. It includes:
+
+- a provider-scoped ID, feature type, name, and location;
+- provider, tool, and database provenance;
+- identity, coverage, score, and e-value when reported;
+- nucleotide and protein sequences when available;
+- complete, partial, interrupted, ambiguous, or unknown integrity.
+
+`ResolvedAnnotation` groups compatible evidence and exposes:
+
+- a selected display name and aliases;
+- canonical identifiers;
+- supporting providers;
+- `supported`, `single_source`, or `conflicted` resolution status;
+- typed coordinate, strand, and integrity conflicts.
+
+Raw evidence is retained even when a more specific resolved feature is chosen
+for presentation.
+
+## Serialization
+
+```python
+po.to_dict(plasmid) -> dict[str, object]
+po.to_json(plasmid, *, indent: int = 2) -> str
+po.from_dict(payload) -> po.Plasmid
+po.from_json(payload) -> po.Plasmid
+```
+
+Use these functions instead of serializing dataclasses directly. They own the
+schema version and migration behavior.
+
+## Provider readiness and setup
+
+```python
+report = po.doctor(mode="standard", threads=4)
+result = po.setup("amrfinderplus")
+```
+
+See [Providers and Databases](providers.md) for setup details and environment
+overrides.
+
+## Errors
+
+All package-specific exceptions derive from `po.PlasmidOracleError`:
+
+| Exception | Meaning |
+| --- | --- |
+| `InvalidSequenceError` | DNA normalization failed |
+| `InvalidLocationError` | Coordinates are invalid for the sequence |
+| `InvalidProviderResultError` | Provider output violates the normalized contract |
+| `ProviderUnavailableError` | Required software or database is unavailable |
+| `ProviderExecutionError` | A provider failed or timed out |
+| `InvalidSerializedPlasmidError` | Serialized data is malformed or unsupported |

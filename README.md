@@ -1,6 +1,7 @@
 # Plasmid Oracle
 
 [![CI](https://github.com/McClain-Thiel/PlasmidOracle/actions/workflows/ci.yml/badge.svg)](https://github.com/McClain-Thiel/PlasmidOracle/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-00796b.svg)](https://mcclain-thiel.github.io/PlasmidOracle/)
 [![PyPI](https://img.shields.io/pypi/v/plasmid-oracle.svg)](https://pypi.org/project/plasmid-oracle/)
 [![Python](https://img.shields.io/pypi/pyversions/plasmid-oracle.svg)](https://pypi.org/project/plasmid-oracle/)
 
@@ -271,8 +272,10 @@ unavailable, or cached.
 
 See [the top-down design](docs/design.md) and the
 [architecture decisions](docs/adr/) for the detailed contracts and tradeoffs.
-The [third-party inventory](docs/third-party.md) records tool and database
-license boundaries. Release mechanics are documented in
+The [hosted documentation](https://mcclain-thiel.github.io/PlasmidOracle/)
+provides the user guide and API overview. The
+[third-party inventory](docs/third-party.md) records tool and database license
+boundaries. Release mechanics are documented in
 [the release guide](docs/releasing.md).
 
 ## Development

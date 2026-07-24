@@ -29,6 +29,7 @@ PyPI settings.
    uv run ruff check .
    uv run ruff format --check .
    uv run mypy
+   uv run --group docs mkdocs build --strict
    uv build --no-sources
    uvx --from twine twine check dist/*
    ```

@@ -1,0 +1,73 @@
+site_name: Plasmid Oracle
+site_description: Evidence-first plasmid annotation and characterization
+site_url: https://mcclain-thiel.github.io/PlasmidOracle/
+repo_name: McClain-Thiel/PlasmidOracle
+repo_url: https://github.com/McClain-Thiel/PlasmidOracle
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Plasmid Oracle contributors
+
+theme:
+  name: material
+  icon:
+    logo: material/dna
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Use dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Use light mode
+  features:
+    - content.code.copy
+    - navigation.footer
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+
+nav:
+  - Overview: index.md
+  - Getting Started: getting-started.md
+  - Python API: python-api.md
+  - Providers and Databases: providers.md
+  - Command Line: cli.md
+  - Design:
+      - Architecture: design.md
+      - Provider Execution Boundary: adr/001-provider-execution-boundary.md
+      - Dependency and Database Policy: adr/002-dependency-and-database-policy.md
+      - Evidence Resolution and Caching: adr/003-evidence-resolution-and-caching.md
+  - Development:
+      - Release Process: releasing.md
+      - Third-Party Inventory: third-party.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+validation:
+  links:
+    anchors: warn
+    not_found: warn
+    unrecognized_links: warn
