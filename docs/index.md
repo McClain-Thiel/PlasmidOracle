@@ -23,6 +23,7 @@ Given a DNA sequence, Plasmid Oracle can:
 - identify AMR, stress, and virulence determinants with AMRFinderPlus;
 - characterize replicons and mobility with MOB-suite;
 - reconcile compatible calls without discarding the underlying evidence;
+- evaluate plasmid validity and named-use-case utility from normalized evidence;
 - serialize a complete, reproducible result to schema-versioned JSON.
 
 ## The core contract
@@ -64,8 +65,8 @@ claim that:
 
 - a detected gene is expressed in a particular host;
 - a promoter, CDS, and terminator form one transcriptional unit;
-- a plasmid satisfies a natural-language specification;
+- a natural-language prompt has been faithfully parsed without validation;
 - failure to detect a feature proves biological absence.
 
-Those conclusions belong to future architecture and evaluation layers built on
-the normalized result.
+Those conclusions belong to the evaluation layer built on the normalized result.
+See [Evaluation](evaluation.md) for the validity, utility, and fidelity split.

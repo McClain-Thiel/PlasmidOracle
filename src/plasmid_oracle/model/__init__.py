@@ -9,6 +9,15 @@ from plasmid_oracle.model.characterization import (
     CharacterizationCall,
     QualityFlag,
 )
+from plasmid_oracle.model.evaluation import (
+    EvaluationConfig,
+    EvaluationFinding,
+    EvaluationReport,
+    EvaluationScope,
+    EvaluationStatus,
+    Requirement,
+    RequirementSet,
+)
 from plasmid_oracle.model.location import Location, Span, Strand
 from plasmid_oracle.model.manifest import AnalysisManifest, ProviderRun, ProviderStatus
 from plasmid_oracle.model.plasmid import Plasmid
@@ -26,12 +35,19 @@ __all__ = [
     "Characterization",
     "CharacterizationCall",
     "EvidenceMetrics",
+    "EvaluationConfig",
+    "EvaluationFinding",
+    "EvaluationReport",
+    "EvaluationScope",
+    "EvaluationStatus",
     "Integrity",
     "Location",
     "Plasmid",
     "ProviderRun",
     "ProviderStatus",
     "QualityFlag",
+    "Requirement",
+    "RequirementSet",
     "ResolutionConflict",
     "ResolutionStatus",
     "ResolvedAnnotation",

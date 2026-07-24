@@ -5,6 +5,7 @@ from collections.abc import Iterable, Mapping
 from functools import partial
 from pathlib import Path
 
+from plasmid_oracle.evaluation import check, evaluate, requirement_schema, requirements_from_dict
 from plasmid_oracle.model import (
     AnalysisManifest,
     Characterization,
@@ -20,6 +21,15 @@ from plasmid_oracle.pipeline import (
 from plasmid_oracle.providers.builtin import providers_for_mode
 
 _VALID_MODES = frozenset({"minimal", "fast", "standard", "deep"})
+__all__ = [
+    "annotate",
+    "annotate_async",
+    "check",
+    "evaluate",
+    "plasmid",
+    "requirement_schema",
+    "requirements_from_dict",
+]
 
 
 def plasmid(

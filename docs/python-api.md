@@ -96,6 +96,25 @@ plasmid.to_dataframe()
 Raw evidence is retained even when a more specific resolved feature is chosen
 for presentation.
 
+## Evaluate
+
+```python
+po.evaluate(plasmid) -> po.EvaluationReport
+po.evaluate(plasmid, preset="lab_vector") -> po.EvaluationReport
+po.check(plasmid, "has_replication_component") -> po.EvaluationFinding
+po.requirement_schema() -> dict[str, object]
+po.requirements_from_dict(payload) -> po.RequirementSet
+```
+
+Evaluation is separate from annotation. The default evaluates loose plasmid
+validity. Named presets evaluate utility for a use case. Requirement sets
+evaluate fidelity to parsed user intent.
+
+The natural-language layer should request structured output using
+`po.requirement_schema()`, validate the returned payload with
+`po.requirements_from_dict(...)`, then pass the resulting requirement set to
+`po.evaluate(...)`.
+
 ## Serialization
 
 ```python

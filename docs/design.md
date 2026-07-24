@@ -377,7 +377,7 @@ belongs in later evaluation.
 
 ## 12. Evaluation Boundary
 
-Future evaluators consume a completed `Plasmid`:
+Evaluators consume an existing `Plasmid`:
 
 ```python
 report = po.evaluate(
@@ -391,8 +391,19 @@ report = po.evaluate(
 ```
 
 An evaluator produces pass, fail, warning, or unknown findings with exact
-evidence. Natural language is first converted into this structured requirement
-form. Deterministic code performs the biological checks.
+evidence. It separates three concepts:
+
+- **validity**: whether the sequence is coherent enough to interpret as plasmid
+  DNA, without requiring a standard lab-vector backbone;
+- **utility**: whether the plasmid satisfies a named preset such as
+  `lab_vector` or `bacterial_expression_vector`;
+- **fidelity**: whether the plasmid matches a parsed requirement set from a user
+  prompt.
+
+Natural language is first converted into a structured requirement form. The
+requirement schema is generated from Plasmid Oracle's registered presets and
+checks, then deterministic code performs the biological checks. The LLM layer
+does not inspect raw DNA and does not decide pass/fail status.
 
 ## 13. Package Layout
 
@@ -401,6 +412,7 @@ src/plasmid_oracle/
   __init__.py
   api.py
   errors.py
+  evaluation.py
   reporting.py
   resolution.py
   model/
@@ -408,6 +420,7 @@ src/plasmid_oracle/
     location.py
     annotation.py
     characterization.py
+    evaluation.py
     manifest.py
     plasmid.py
     resolution.py

@@ -13,10 +13,13 @@ The package keeps three concerns separate:
 
 1. Providers gather biological evidence.
 2. A canonical immutable `Plasmid` normalizes that evidence.
-3. Future evaluators decide whether a plasmid meets a specification.
+3. Evaluators decide whether a plasmid is valid, useful for a preset, or
+   faithful to parsed requirements.
 
-The current alpha implements the annotation and evidence-resolution core. It
-does not yet evaluate natural-language or JSON requirements.
+The current alpha implements the annotation and evidence-resolution core plus a
+first deterministic evaluation layer. It does not yet parse natural language by
+itself; natural-language systems should produce the supported requirement JSON
+schema and let Plasmid Oracle perform the biological checks.
 
 ## What Works
 
@@ -36,11 +39,13 @@ does not yet evaluate natural-language or JSON requirements.
   databases;
 - bounded provider concurrency and an asynchronous Python entry point;
 - readable CLI reports, machine-readable JSON, and provider diagnostics;
-- explicit database setup with no annotation-time downloads.
+- explicit database setup with no annotation-time downloads;
+- deterministic plasmid validity, preset utility, and parsed-requirement
+  fidelity reports.
 
 Whole-plasmid comparison beyond MOB-suite's nearest-neighbor result, evidence
-calibration against broader benchmark sets, and requirement evaluation remain
-roadmap items.
+calibration against broader benchmark sets, expression-cassette inference, and
+natural-language parsing remain roadmap items.
 
 ## Install
 
@@ -122,6 +127,18 @@ hits = plasmid.find("tet")
 table = plasmid.to_dataframe()  # requires pandas
 report = plasmid.summary()
 ```
+
+Evaluate loose plasmid validity, named utility presets, or parsed requirements:
+
+```python
+validity = po.evaluate(plasmid)
+lab_vector = po.evaluate(plasmid, preset="lab_vector")
+schema = po.requirement_schema()
+```
+
+Evaluation never treats a failed or unavailable provider as biological absence.
+Natural-language prompts should be converted into the generated requirement
+schema before calling `evaluate()`.
 
 ## Analysis Modes
 

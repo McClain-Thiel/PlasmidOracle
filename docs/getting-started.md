@@ -90,6 +90,39 @@ For tabular analysis:
 frame = result.to_dataframe()  # requires pandas
 ```
 
+## Evaluate a plasmid
+
+Evaluation is designed to be easy first and configurable later. The default is
+loose plasmid validity, not a strict lab-vector definition:
+
+```python
+validity = po.evaluate(result)
+print(validity.status)
+```
+
+Use a preset when you have a use case:
+
+```python
+lab_vector = po.evaluate(result, preset="lab_vector")
+
+for finding in lab_vector.findings:
+    print(finding.check, finding.status, finding.message)
+```
+
+When you need stricter evidence thresholds, pass a config:
+
+```python
+strict = po.evaluate(
+    result,
+    preset="lab_vector",
+    config=po.EvaluationConfig(min_identity=0.95, min_coverage=0.95),
+)
+```
+
+Natural-language prompts should be parsed into requirements first. The
+requirements are independent from the plasmid, so validity and prompt fidelity
+can be reported separately.
+
 ## Run standard analysis
 
 After provider setup:
