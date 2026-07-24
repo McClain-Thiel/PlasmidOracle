@@ -91,10 +91,16 @@ class Plasmid:
                 "DataFrame export requires pandas; install plasmid-oracle[plannotate] "
                 "or pandas directly"
             ) from error
+        data_frame = getattr(pandas, "DataFrame", None)
+        if data_frame is None:
+            raise RuntimeError(
+                "DataFrame export requires a complete pandas installation; "
+                "install plasmid-oracle[plannotate] or pandas directly"
+            )
 
         from plasmid_oracle.reporting import annotation_rows
 
-        return pandas.DataFrame(annotation_rows(self))
+        return data_frame(annotation_rows(self))
 
     def __str__(self) -> str:
         return self.summary()

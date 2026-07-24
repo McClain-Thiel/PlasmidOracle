@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=75"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,13 +8,40 @@ version = "0.2.0a0"
 description = "Evidence-first plasmid annotation and characterization"
 readme = "README.md"
 requires-python = ">=3.11"
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 authors = [
   { name = "Plasmid Oracle contributors" },
+]
+keywords = [
+  "amr",
+  "annotation",
+  "bioinformatics",
+  "dna",
+  "plasmid",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Typing :: Typed",
 ]
 dependencies = [
   "platformdirs>=4.3,<5",
   "pyrodigal>=3.7,<4",
 ]
+
+[project.urls]
+Homepage = "https://github.com/McClain-Thiel/PlasmidOracle"
+Documentation = "https://github.com/McClain-Thiel/PlasmidOracle#readme"
+Issues = "https://github.com/McClain-Thiel/PlasmidOracle/issues"
+Repository = "https://github.com/McClain-Thiel/PlasmidOracle"
 
 [project.optional-dependencies]
 plannotate = [
@@ -28,6 +55,7 @@ plasmid-oracle = "plasmid_oracle.cli:main"
 [dependency-groups]
 dev = [
   "mypy>=1.15",
+  "pandas>=1.5,<3",
   "pytest>=8.3",
   "pytest-cov>=6.0",
   "ruff>=0.11",

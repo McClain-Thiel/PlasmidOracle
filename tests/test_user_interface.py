@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import sys
+from types import ModuleType
+
 import pytest
 
 import plasmid_oracle as po
@@ -100,3 +103,13 @@ def test_plasmid_dataframe_contains_resolved_features(readable_plasmid: po.Plasm
     assert list(frame["name"]) == ["blaTEST-1", "test origin"]
     assert list(frame["status"]) == ["single_source", "single_source"]
     assert list(frame["providers"]) == ["readable", "readable"]
+
+
+def test_plasmid_dataframe_rejects_an_incomplete_pandas_installation(
+    readable_plasmid: po.Plasmid,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setitem(sys.modules, "pandas", ModuleType("pandas"))
+
+    with pytest.raises(RuntimeError, match="complete pandas installation"):
+        readable_plasmid.to_dataframe()

@@ -1,0 +1,81 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validate and build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - name: Verify release tag
+        shell: bash
+        run: |
+          project_version="$(uv version --short)"
+          if [[ "$GITHUB_REF_NAME" != "v$project_version" ]]; then
+            echo "Release tag $GITHUB_REF_NAME does not match v$project_version."
+            exit 1
+          fi
+
+      - name: Install locked development environment
+        run: uv sync --locked --dev
+
+      - name: Test
+        run: uv run pytest --cov=plasmid_oracle --cov-report=term-missing
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Type check
+        run: uv run mypy
+
+      - name: Build wheel and source distribution
+        run: uv build --no-sources
+
+      - name: Validate distribution metadata
+        run: uvx --from twine twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish distribution
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/plasmid-oracle
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

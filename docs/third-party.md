@@ -1,9 +1,10 @@
 # Third-Party Software and Data
 
-Status: dependency inventory for the `0.2.0a0` package design
+Status: dependency inventory for the `0.2.0a0` release
 
-This document is an engineering inventory, not legal advice. The Plasmid
-Oracle project license has not yet been selected.
+This document is an engineering inventory, not legal advice. Plasmid Oracle is
+distributed under GPL-3.0-only, matching the license of its required Pyrodigal
+runtime dependency.
 
 ## Runtime Components
 
@@ -35,11 +36,9 @@ Recorded AMRFinderPlus output and the small `blaTEM` sequence fixture are
 derived from the public NCBI AMRFinderPlus test corpus. They are test data, not
 part of the installed wheel.
 
-## Before Publication
+## Release Review
 
-1. Select and add the Plasmid Oracle project license.
-2. Review compatibility with the required Pyrodigal dependency and the
-   optional pLannotate integration.
-3. Pin this inventory to the dependency versions used for a release.
-4. Preserve upstream notices in any container or bundled distribution that
+1. Review compatibility when adding or changing a runtime dependency.
+2. Pin this inventory to the dependency versions used for a release.
+3. Preserve upstream notices in any container or bundled distribution that
    includes external tools.

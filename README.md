@@ -1,5 +1,9 @@
 # Plasmid Oracle
 
+[![CI](https://github.com/McClain-Thiel/PlasmidOracle/actions/workflows/ci.yml/badge.svg)](https://github.com/McClain-Thiel/PlasmidOracle/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/plasmid-oracle.svg)](https://pypi.org/project/plasmid-oracle/)
+[![Python](https://img.shields.io/pypi/pyversions/plasmid-oracle.svg)](https://pypi.org/project/plasmid-oracle/)
+
 Plasmid Oracle is an evidence-first Python library that turns plasmid DNA into
 a normalized, reproducible description of the sequence, its annotations, and
 its plasmid-level characteristics.
@@ -268,8 +272,8 @@ unavailable, or cached.
 See [the top-down design](docs/design.md) and the
 [architecture decisions](docs/adr/) for the detailed contracts and tradeoffs.
 The [third-party inventory](docs/third-party.md) records tool and database
-license boundaries; the Plasmid Oracle project license must be selected before
-public distribution.
+license boundaries. Release mechanics are documented in
+[the release guide](docs/releasing.md).
 
 ## Development
 
@@ -291,3 +295,9 @@ only run when explicitly enabled:
 ```bash
 PLASMID_ORACLE_RUN_INTEGRATION=1 uv run pytest tests/integration
 ```
+
+## License
+
+Plasmid Oracle is licensed under the
+[GNU General Public License v3.0](LICENSE). Its separately distributed
+dependencies and external databases retain their own licenses.
