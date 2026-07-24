@@ -1,0 +1,61 @@
+{
+  "retrieved_at": "2026-07-24",
+  "source": "NCBI Nucleotide via Entrez EFetch",
+  "records": [
+    {
+      "name": "pBR322",
+      "accession": "J01749.1",
+      "file": "pBR322_J01749.1.fasta",
+      "topology": "circular",
+      "length": 4361,
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/J01749.1",
+      "file_sha256": "413ebe6df668a562810c1aafa1bd1e2692fc064473904e43d935fb8f8ceec14e",
+      "sequence_sha256": "536042a7485bdabdf49c4d21a306213a098d77d19bdba57a1c6adc76ce2b8372",
+      "canonical_sha256": "d1b8f4ab10751a964aa0e7577847a50ba6df018e1c143d6f0aabf676eeebfa81",
+      "ground_truth_features": [
+        {
+          "name": "tetracycline resistance protein",
+          "start": 85,
+          "end": 1276,
+          "strand": "+"
+        },
+        {
+          "name": "ROP protein",
+          "start": 1914,
+          "end": 2106,
+          "strand": "+"
+        },
+        {
+          "name": "beta-lactamase",
+          "start": 3292,
+          "end": 4153,
+          "strand": "-"
+        }
+      ]
+    },
+    {
+      "name": "pUC19",
+      "accession": "M77789.2",
+      "file": "pUC19_M77789.2.fasta",
+      "topology": "circular",
+      "length": 2686,
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/M77789.2",
+      "file_sha256": "2770d471b6f11b8d8824a56558ae2e97fb869e2404d23130ae31fbb1a896162d",
+      "sequence_sha256": "7c1183b16368b1435452d99152d7c95aa04fc4a5412e563a5ef1d0fbf0cf873b",
+      "canonical_sha256": "4a9da025ff81f65a25a73137e5e528ee8923dc47b29a6d12a64989d67aec5f2a",
+      "ground_truth_features": []
+    },
+    {
+      "name": "pACYC184",
+      "accession": "X06403.1",
+      "file": "pACYC184_X06403.1.fasta",
+      "topology": "circular",
+      "length": 4245,
+      "source_url": "https://www.ncbi.nlm.nih.gov/nuccore/X06403.1",
+      "file_sha256": "8504cc4d9adfa332b9680b04792eaacab39b1517c9543a305f62f68a4aa021f8",
+      "sequence_sha256": "f9484eb2ae4c5d157b08c3c19af0933984ed1605753d8d73897728d914eee021",
+      "canonical_sha256": "9473f61d7efcd670eccda4248d84ca176d345976dae8ee80d3f7a5a4a488df8b",
+      "ground_truth_features": []
+    }
+  ]
+}

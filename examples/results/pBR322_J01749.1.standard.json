@@ -1,0 +1,1295 @@
+{
+  "analysis": {
+    "mode": "standard",
+    "pipeline_version": "0.2.0a0",
+    "provider_runs": [
+      {
+        "database_versions": {},
+        "error": null,
+        "name": "pyrodigal",
+        "parameters": {
+          "provider_workers": 4,
+          "threads": 1,
+          "timeout_seconds": 900.0,
+          "total_threads": 4
+        },
+        "provider_version": "1",
+        "runtime_seconds": 0.013095542002702132,
+        "status": "completed",
+        "tool_version": "3.7.1",
+        "warnings": []
+      },
+      {
+        "database_versions": {
+          "Rfam": "release 14.5",
+          "fpbase": "downloaded 2020-09-02",
+          "snapgene": "Downloaded 2021-07-23",
+          "swissprot": "Release 2021_03"
+        },
+        "error": null,
+        "name": "plannotate",
+        "parameters": {
+          "provider_workers": 4,
+          "threads": 1,
+          "timeout_seconds": 900.0,
+          "total_threads": 4
+        },
+        "provider_version": "1",
+        "runtime_seconds": 2.11399604199687,
+        "status": "completed",
+        "tool_version": "1.2.9",
+        "warnings": []
+      },
+      {
+        "database_versions": {
+          "AMRFinderPlus": "2026-05-15.1"
+        },
+        "error": null,
+        "name": "amrfinderplus",
+        "parameters": {
+          "provider_workers": 4,
+          "threads": 1,
+          "timeout_seconds": 900.0,
+          "total_threads": 4
+        },
+        "provider_version": "1",
+        "runtime_seconds": 0.7735527500044554,
+        "status": "completed",
+        "tool_version": "4.2.7",
+        "warnings": []
+      },
+      {
+        "database_versions": {
+          "MOB-suite": "downloaded-2026-07-24"
+        },
+        "error": null,
+        "name": "mob_typer",
+        "parameters": {
+          "provider_workers": 4,
+          "threads": 1,
+          "timeout_seconds": 900.0,
+          "total_threads": 4
+        },
+        "provider_version": "1",
+        "runtime_seconds": 4.851894999999786,
+        "status": "completed",
+        "tool_version": "3.1.9",
+        "warnings": []
+      }
+    ],
+    "warnings": []
+  },
+  "annotations": [
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0001",
+      "canonical_ids": [
+        "tet_promoter"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "plannotate:7"
+      ],
+      "feature_type": "promoter",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 38,
+            "start": 9
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "tet promoter",
+      "nucleotide_sequence": "TTGACAGCTTATCATCGATAAGCTTTAAT",
+      "protein_sequence": null,
+      "status": "single_source"
+    },
+    {
+      "aliases": [
+        "tetA"
+      ],
+      "annotation_id": "resolved:0002",
+      "canonical_ids": [
+        "P02981",
+        "WP_010891057.1",
+        "tet(C)"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "amrfinderplus:1",
+        "plannotate:3",
+        "pyrodigal:cds:1"
+      ],
+      "feature_type": "antimicrobial_resistance_gene",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1273,
+            "start": 85
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "tet(C)",
+      "nucleotide_sequence": null,
+      "protein_sequence": null,
+      "status": "supported"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0003",
+      "canonical_ids": [],
+      "conflicts": [],
+      "evidence_ids": [
+        "pyrodigal:cds:2"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1460,
+            "start": 1331
+          }
+        ],
+        "strand": "-"
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "ATGCGCACCCGTGGCCAGGACCCAACGCTGCCCGAGATGCGCCGCGTGCGGCTGCTGGAGATGGCGGACGCGATGGATATGTTCTGCCAAGGGTTGGTTTGCGCATTCACAGTTCTCCGCAAGAATTGA",
+      "protein_sequence": "MRTRGQDPTLPEMRRVRLLEMADAMDMFCQGLVCAFTVLRKN",
+      "status": "single_source"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0004",
+      "canonical_ids": [
+        "P03852"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "pyrodigal:cds:3",
+        "plannotate:8"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1898,
+            "start": 1517
+          }
+        ],
+        "strand": "-"
+      },
+      "name": "YPB1_ECOLX",
+      "nucleotide_sequence": "GGGGGATTTCTGTTCATGGGGGTAATGATACCGATGAAACGAGAGAGGATGCTCACGATACGGGTTACTGATGATGAACATGCCCGGTTACTGGAACGTTGTGAGGGTAAACAACTGGCGGTATGGATGCGGCGGGACCAGAGAAAAATCACTCAGGGTCAATGCCAGCGCTTCGTTAATACAGATGTAGGTGTTCCACAGGGTAGCCAGCAGCATCCTGCGATGCAGATCCGGAACATAATGGTGCAGGGCGCTGACTTCCGCGTTTCCAGACTTTACGAAACACGGAAACCGAAGACCATTCATGTTGTTGCTCAGGTCGCAGACGTTTTGCAGCAGCAGTCGCTTCACGTTCGCTCGCGTATCGGTGATTCATTCTGC",
+      "protein_sequence": null,
+      "status": "supported"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0005",
+      "canonical_ids": [
+        "rop"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "plannotate:4",
+        "pyrodigal:cds:4"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 2106,
+            "start": 1914
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "rop",
+      "nucleotide_sequence": "GTGACCAAACAGGAAAAAACCGCCCTTAACATGGCCCGCTTTATCAGAAGCCAGACATTAACGCTTCTGGAGAAACTCAACGAGCTGGACGCGGATGAACAGGCAGACATCTGTGAATCGCTTCACGACCACGCTGATGAGCTTTACCGCAGCTGCCTCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGA",
+      "protein_sequence": null,
+      "status": "supported"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0006",
+      "canonical_ids": [
+        "bom"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "plannotate:5"
+      ],
+      "feature_type": "misc_feature",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 2348,
+            "start": 2207
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "bom",
+      "nucleotide_sequence": "CGCAGCCATGACCCAGTCACGTAGCGATAGCGGAGTGTATACTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGG",
+      "protein_sequence": null,
+      "status": "single_source"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0007",
+      "canonical_ids": [
+        "ori"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "plannotate:2"
+      ],
+      "feature_type": "rep_origin",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 3122,
+            "start": 2533
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "ori",
+      "nucleotide_sequence": "TTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAA",
+      "protein_sequence": null,
+      "status": "single_source"
+    },
+    {
+      "aliases": [
+        "AmpR"
+      ],
+      "annotation_id": "resolved:0008",
+      "canonical_ids": [
+        "AmpR_(2)",
+        "WP_000027057.1",
+        "blaTEM-1"
+      ],
+      "conflicts": [
+        {
+          "code": "strand_disagreement",
+          "evidence_ids": [
+            "amrfinderplus:2",
+            "plannotate:1",
+            "pyrodigal:cds:5"
+          ],
+          "message": "Supporting evidence disagrees about feature strand"
+        }
+      ],
+      "evidence_ids": [
+        "plannotate:1",
+        "pyrodigal:cds:5",
+        "amrfinderplus:2"
+      ],
+      "feature_type": "antimicrobial_resistance_gene",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4153,
+            "start": 3292
+          }
+        ],
+        "strand": "-"
+      },
+      "name": "blaTEM-1",
+      "nucleotide_sequence": null,
+      "protein_sequence": null,
+      "status": "conflicted"
+    },
+    {
+      "aliases": [],
+      "annotation_id": "resolved:0009",
+      "canonical_ids": [
+        "AmpR_promoter_(4)"
+      ],
+      "conflicts": [],
+      "evidence_ids": [
+        "plannotate:6"
+      ],
+      "feature_type": "promoter",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4258,
+            "start": 4153
+          }
+        ],
+        "strand": "+"
+      },
+      "name": "AmpR promoter",
+      "nucleotide_sequence": "ACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCG",
+      "protein_sequence": null,
+      "status": "single_source"
+    }
+  ],
+  "characterization": {
+    "host_range": [
+      {
+        "confidence": null,
+        "name": "Actinomycetota,Bacillota,Bacteroidota,Pseudomonadota",
+        "qualifiers": {
+          "basis": "predicted",
+          "rank": "multi-phylla"
+        },
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      },
+      {
+        "confidence": null,
+        "name": "Actinomycetota,Bacillota,Bacteroidota,Pseudomonadota",
+        "qualifiers": {
+          "basis": "observed",
+          "rank": "multi-phylla"
+        },
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      },
+      {
+        "confidence": null,
+        "name": "Escherichia",
+        "qualifiers": {
+          "basis": "reported",
+          "rank": "genus"
+        },
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      }
+    ],
+    "mobility": [
+      {
+        "confidence": null,
+        "name": "mobilizable",
+        "qualifiers": {},
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      }
+    ],
+    "mpf_types": [],
+    "orit_sites": [
+      {
+        "confidence": null,
+        "name": "MOBP",
+        "qualifiers": {
+          "accession": "NC_014477"
+        },
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      }
+    ],
+    "quality_flags": [],
+    "relaxases": [],
+    "replicons": [
+      {
+        "confidence": null,
+        "name": "rep_cluster_2350",
+        "qualifiers": {
+          "accession": "CP041342_00001"
+        },
+        "source": {
+          "database": "MOB-suite",
+          "database_version": "downloaded-2026-07-24",
+          "provider": "mob_typer",
+          "provider_version": "1",
+          "tool_version": "3.1.9"
+        }
+      }
+    ],
+    "similarity_hits": []
+  },
+  "evidence": [
+    {
+      "annotation_id": "pyrodigal:cds:1",
+      "canonical_ids": [],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1276,
+            "start": 85
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": null,
+        "evalue": null,
+        "identity": null,
+        "score": 90.80932060634434
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "ATGAAATCTAACAATGCGCTCATCGTCATCCTCGGCACCGTCACCCTGGATGCTGTAGGCATAGGCTTGGTTATGCCGGTACTGCCGGGCCTCTTGCGGGATATCGTCCATTCCGACAGCATCGCCAGTCACTATGGCGTGCTGCTAGCGCTATATGCGTTGATGCAATTTCTATGCGCACCCGTTCTCGGAGCACTGTCCGACCGCTTTGGCCGCCGCCCAGTCCTGCTCGCTTCGCTACTTGGAGCCACTATCGACTACGCGATCATGGCGACCACACCCGTCCTGTGGATCCTCTACGCCGGACGCATCGTGGCCGGCATCACCGGCGCCACAGGTGCGGTTGCTGGCGCCTATATCGCCGACATCACCGATGGGGAAGATCGGGCTCGCCACTTCGGGCTCATGAGCGCTTGTTTCGGCGTGGGTATGGTGGCAGGCCCCGTGGCCGGGGGACTGTTGGGCGCCATCTCCTTGCATGCACCATTCCTTGCGGCGGCGGTGCTCAACGGCCTCAACCTACTACTGGGCTGCTTCCTAATGCAGGAGTCGCATAAGGGAGAGCGTCGACCGATGCCCTTGAGAGCCTTCAACCCAGTCAGCTCCTTCCGGTGGGCGCGGGGCATGACTATCGTCGCCGCACTTATGACTGTCTTCTTTATCATGCAACTCGTAGGACAGGTGCCGGCAGCGCTCTGGGTCATTTTCGGCGAGGACCGCTTTCGCTGGAGCGCGACGATGATCGGCCTGTCGCTTGCGGTATTCGGAATCTTGCACGCCCTCGCTCAAGCCTTCGTCACTGGTCCCGCCACCAAACGTTTCGGCGAGAAGCAGGCCATTATCGCCGGCATGGCGGCCGACGCGCTGGGCTACGTCTTGCTGGCGTTCGCGACGCGAGGCTGGATGGCCTTCCCCATTATGATTCTTCTCGCTTCCGGCGGCATCGGGATGCCCGCGTTGCAGGCCATGCTGTCCAGGCAGGTAGATGACGACCATCAGGGACAGCTTCAAGGATCGCTCGCGGCTCTTACCAGCCTAACTTCGATCACTGGACCGCTGATCGTCACGGCGATTTATGCCGCCTCGGCGAGCACATGGAACGGGTTGGCATGGATTGTAGGCGCCGCCCTATACCTTGTCTGCCTCCCCGCGTTGCGTCGCGGTGCATGGAGCCGGGCCACCTCGACCTGA",
+      "protein_sequence": "MKSNNALIVILGTVTLDAVGIGLVMPVLPGLLRDIVHSDSIASHYGVLLALYALMQFLCAPVLGALSDRFGRRPVLLASLLGATIDYAIMATTPVLWILYAGRIVAGITGATGAVAGAYIADITDGEDRARHFGLMSACFGVGMVAGPVAGGLLGAISLHAPFLAAAVLNGLNLLLGCFLMQESHKGERRPMPLRAFNPVSSFRWARGMTIVAALMTVFFIMQLVGQVPAALWVIFGEDRFRWSATMIGLSLAVFGILHALAQAFVTGPATKRFGEKQAIIAGMAADALGYVLLAFATRGWMAFPIMILLASGGIGMPALQAMLSRQVDDDHQGQLQGSLAALTSLTSITGPLIVTAIYAASASTWNGLAWIVGAALYLVCLPALRRGAWSRATST",
+      "qualifiers": {
+        "partial_begin": false,
+        "partial_end": false,
+        "prediction_confidence": 0.9999999991413895,
+        "rbs_motif": "GGA/GAG/AGG",
+        "rbs_spacer": "5-10bp",
+        "start_type": "ATG",
+        "translation_table": 11
+      },
+      "source": {
+        "database": null,
+        "database_version": null,
+        "provider": "pyrodigal",
+        "provider_version": "1",
+        "tool_version": "3.7.1"
+      }
+    },
+    {
+      "annotation_id": "pyrodigal:cds:2",
+      "canonical_ids": [],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1460,
+            "start": 1331
+          }
+        ],
+        "strand": "-"
+      },
+      "metrics": {
+        "coverage": null,
+        "evalue": null,
+        "identity": null,
+        "score": 9.620152234277278
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "ATGCGCACCCGTGGCCAGGACCCAACGCTGCCCGAGATGCGCCGCGTGCGGCTGCTGGAGATGGCGGACGCGATGGATATGTTCTGCCAAGGGTTGGTTTGCGCATTCACAGTTCTCCGCAAGAATTGA",
+      "protein_sequence": "MRTRGQDPTLPEMRRVRLLEMADAMDMFCQGLVCAFTVLRKN",
+      "qualifiers": {
+        "partial_begin": false,
+        "partial_end": false,
+        "prediction_confidence": 0.9012800742285997,
+        "rbs_motif": "AGGAG",
+        "rbs_spacer": "5-10bp",
+        "start_type": "ATG",
+        "translation_table": 11
+      },
+      "source": {
+        "database": null,
+        "database_version": null,
+        "provider": "pyrodigal",
+        "provider_version": "1",
+        "tool_version": "3.7.1"
+      }
+    },
+    {
+      "annotation_id": "pyrodigal:cds:3",
+      "canonical_ids": [],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1883,
+            "start": 1514
+          }
+        ],
+        "strand": "-"
+      },
+      "metrics": {
+        "coverage": null,
+        "evalue": null,
+        "identity": null,
+        "score": 13.087109390301961
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "ATGGGGGTAATGATACCGATGAAACGAGAGAGGATGCTCACGATACGGGTTACTGATGATGAACATGCCCGGTTACTGGAACGTTGTGAGGGTAAACAACTGGCGGTATGGATGCGGCGGGACCAGAGAAAAATCACTCAGGGTCAATGCCAGCGCTTCGTTAATACAGATGTAGGTGTTCCACAGGGTAGCCAGCAGCATCCTGCGATGCAGATCCGGAACATAATGGTGCAGGGCGCTGACTTCCGCGTTTCCAGACTTTACGAAACACGGAAACCGAAGACCATTCATGTTGTTGCTCAGGTCGCAGACGTTTTGCAGCAGCAGTCGCTTCACGTTCGCTCGCGTATCGGTGATTCATTCTGCTAA",
+      "protein_sequence": "MGVMIPMKRERMLTIRVTDDEHARLLERCEGKQLAVWMRRDQRKITQGQCQRFVNTDVGVPQGSQQHPAMQIRNIMVQGADFRVSRLYETRKPKTIHVVAQVADVLQQQSLHVRSRIGDSFC",
+      "qualifiers": {
+        "partial_begin": false,
+        "partial_end": false,
+        "prediction_confidence": 0.9529580395699696,
+        "rbs_motif": "AGxAGG/AGGxGG",
+        "rbs_spacer": "5-10bp",
+        "start_type": "ATG",
+        "translation_table": 11
+      },
+      "source": {
+        "database": null,
+        "database_version": null,
+        "provider": "pyrodigal",
+        "provider_version": "1",
+        "tool_version": "3.7.1"
+      }
+    },
+    {
+      "annotation_id": "pyrodigal:cds:4",
+      "canonical_ids": [],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 2106,
+            "start": 1914
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": null,
+        "evalue": null,
+        "identity": null,
+        "score": 14.68415581180695
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "GTGACCAAACAGGAAAAAACCGCCCTTAACATGGCCCGCTTTATCAGAAGCCAGACATTAACGCTTCTGGAGAAACTCAACGAGCTGGACGCGGATGAACAGGCAGACATCTGTGAATCGCTTCACGACCACGCTGATGAGCTTTACCGCAGCTGCCTCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGA",
+      "protein_sequence": "MTKQEKTALNMARFIRSQTLTLLEKLNELDADEQADICESLHDHADELYRSCLARFGDDGENL",
+      "qualifiers": {
+        "partial_begin": false,
+        "partial_end": false,
+        "prediction_confidence": 0.966935385220038,
+        "rbs_motif": "GGAGG",
+        "rbs_spacer": "5-10bp",
+        "start_type": "GTG",
+        "translation_table": 11
+      },
+      "source": {
+        "database": null,
+        "database_version": null,
+        "provider": "pyrodigal",
+        "provider_version": "1",
+        "tool_version": "3.7.1"
+      }
+    },
+    {
+      "annotation_id": "pyrodigal:cds:5",
+      "canonical_ids": [],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4153,
+            "start": 3292
+          }
+        ],
+        "strand": "-"
+      },
+      "metrics": {
+        "coverage": null,
+        "evalue": null,
+        "identity": null,
+        "score": 71.8532765209577
+      },
+      "name": "predicted CDS",
+      "nucleotide_sequence": "ATGAGTATTCAACATTTCCGTGTCGCCCTTATTCCCTTTTTTGCGGCATTTTGCCTTCCTGTTTTTGCTCACCCAGAAACGCTGGTGAAAGTAAAAGATGCTGAAGATCAGTTGGGTGCACGAGTGGGTTACATCGAACTGGATCTCAACAGCGGTAAGATCCTTGAGAGTTTTCGCCCCGAAGAACGTTTTCCAATGATGAGCACTTTTAAAGTTCTGCTATGTGGCGCGGTATTATCCCGTGTTGACGCCGGGCAAGAGCAACTCGGTCGCCGCATACACTATTCTCAGAATGACTTGGTTGAGTACTCACCAGTCACAGAAAAGCATCTTACGGATGGCATGACAGTAAGAGAATTATGCAGTGCTGCCATAACCATGAGTGATAACACTGCGGCCAACTTACTTCTGACAACGATCGGAGGACCGAAGGAGCTAACCGCTTTTTTGCACAACATGGGGGATCATGTAACTCGCCTTGATCGTTGGGAACCGGAGCTGAATGAAGCCATACCAAACGACGAGCGTGACACCACGATGCCTGCAGCAATGGCAACAACGTTGCGCAAACTATTAACTGGCGAACTACTTACTCTAGCTTCCCGGCAACAATTAATAGACTGGATGGAGGCGGATAAAGTTGCAGGACCACTTCTGCGCTCGGCCCTTCCGGCTGGCTGGTTTATTGCTGATAAATCTGGAGCCGGTGAGCGTGGGTCTCGCGGTATCATTGCAGCACTGGGGCCAGATGGTAAGCCCTCCCGTATCGTAGTTATCTACACGACGGGGAGTCAGGCAACTATGGATGAACGAAATAGACAGATCGCTGAGATAGGTGCCTCACTGATTAAGCATTGGTAA",
+      "protein_sequence": "MSIQHFRVALIPFFAAFCLPVFAHPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPAAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW",
+      "qualifiers": {
+        "partial_begin": false,
+        "partial_end": false,
+        "prediction_confidence": 0.9999999329612259,
+        "rbs_motif": "AGGA",
+        "rbs_spacer": "5-10bp",
+        "start_type": "ATG",
+        "translation_table": 11
+      },
+      "source": {
+        "database": null,
+        "database_version": null,
+        "provider": "pyrodigal",
+        "provider_version": "1",
+        "tool_version": "3.7.1"
+      }
+    },
+    {
+      "annotation_id": "plannotate:1",
+      "canonical_ids": [
+        "AmpR_(2)"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4153,
+            "start": 3292
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 0.0,
+        "identity": 1.0,
+        "score": 8610.0
+      },
+      "name": "AmpR",
+      "nucleotide_sequence": "TTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTGCAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAACACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCAT",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "\u03b2-lactamase; bla; confers resistance to ampicillin, carbenicillin, and related antibiotics",
+        "Feature": "AmpR",
+        "Type": "CDS",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 0.0,
+        "fragment": false,
+        "kind": "CDS",
+        "length": 861,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 4153,
+        "qend_dup": 8513,
+        "qlen": 4361,
+        "qseq": "TTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTGCAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAACACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCAT",
+        "qstart": 3292,
+        "qstart_dup": 7653,
+        "score": 8610.0,
+        "send": 1,
+        "sframe": 1,
+        "slen": 861,
+        "sseqid": "AmpR_(2)",
+        "sstart": 861,
+        "wend": 4023,
+        "wiggle": 129,
+        "wstart": 3421
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:2",
+      "canonical_ids": [
+        "ori"
+      ],
+      "feature_type": "rep_origin",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 3122,
+            "start": 2533
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 0.0,
+        "identity": 1.0,
+        "score": 5890.0
+      },
+      "name": "ori",
+      "nucleotide_sequence": "TTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAA",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "high-copy-number ColE1/pMB1/pBR322/pUC origin of replication ",
+        "Feature": "ori",
+        "Type": "rep_origin",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 0.0,
+        "fragment": false,
+        "kind": "rep_origin",
+        "length": 589,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 3122,
+        "qend_dup": 7482,
+        "qlen": 4361,
+        "qseq": "TTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAA",
+        "qstart": 2533,
+        "qstart_dup": 6894,
+        "score": 5890.0,
+        "send": 1,
+        "sframe": 1,
+        "slen": 589,
+        "sseqid": "ori",
+        "sstart": 589,
+        "wend": 3033,
+        "wiggle": 88,
+        "wstart": 2621
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:3",
+      "canonical_ids": [
+        "P02981"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1273,
+            "start": 85
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 0.0,
+        "identity": 1.0,
+        "score": 2970.0
+      },
+      "name": "tetA",
+      "nucleotide_sequence": "ATGAAATCTAACAATGCGCTCATCGTCATCCTCGGCACCGTCACCCTGGATGCTGTAGGCATAGGCTTGGTTATGCCGGTACTGCCGGGCCTCTTGCGGGATATCGTCCATTCCGACAGCATCGCCAGTCACTATGGCGTGCTGCTAGCGCTATATGCGTTGATGCAATTTCTATGCGCACCCGTTCTCGGAGCACTGTCCGACCGCTTTGGCCGCCGCCCAGTCCTGCTCGCTTCGCTACTTGGAGCCACTATCGACTACGCGATCATGGCGACCACACCCGTCCTGTGGATCCTCTACGCCGGACGCATCGTGGCCGGCATCACCGGCGCCACAGGTGCGGTTGCTGGCGCCTATATCGCCGACATCACCGATGGGGAAGATCGGGCTCGCCACTTCGGGCTCATGAGCGCTTGTTTCGGCGTGGGTATGGTGGCAGGCCCCGTGGCCGGGGGACTGTTGGGCGCCATCTCCTTGCATGCACCATTCCTTGCGGCGGCGGTGCTCAACGGCCTCAACCTACTACTGGGCTGCTTCCTAATGCAGGAGTCGCATAAGGGAGAGCGTCGACCGATGCCCTTGAGAGCCTTCAACCCAGTCAGCTCCTTCCGGTGGGCGCGGGGCATGACTATCGTCGCCGCACTTATGACTGTCTTCTTTATCATGCAACTCGTAGGACAGGTGCCGGCAGCGCTCTGGGTCATTTTCGGCGAGGACCGCTTTCGCTGGAGCGCGACGATGATCGGCCTGTCGCTTGCGGTATTCGGAATCTTGCACGCCCTCGCTCAAGCCTTCGTCACTGGTCCCGCCACCAAACGTTTCGGCGAGAAGCAGGCCATTATCGCCGGCATGGCGGCCGACGCGCTGGGCTACGTCTTGCTGGCGTTCGCGACGCGAGGCTGGATGGCCTTCCCCATTATGATTCTTCTCGCTTCCGGCGGCATCGGGATGCCCGCGTTGCAGGCCATGCTGTCCAGGCAGGTAGATGACGACCATCAGGGACAGCTTCAAGGATCGCTCGCGGCTCTTACCAGCCTAACTTCGATCACTGGACCGCTGATCGTCACGGCGATTTATGCCGCCTCGGCGAGCACATGGAACGGGTTGGCATGGATTGTAGGCGCCGCCCTATACCTTGTCTGCCTCCCCGCGTTGCGTCGCGGTGCATGGAGCCGGGCCACCTCGACC",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "TCR3_ECOLX - Experimental evidence at protein level: Swiss-Prot protein existence level 1. Resistance to tetracycline by an active tetracycline efflux. This is an energy-dependent process that decreases the accumulation of the antibiotic in whole cells. This protein functions as a metal- tetracycline/H(+) antiporter. From Escherichia coli. This protein is used as a marker in many commonly used cloning vectors, such as pBR322 and pACYC184.",
+        "Feature": "tetA",
+        "Type": "CDS",
+        "abs percmatch": 100.0,
+        "db": "swissprot",
+        "evalue": 0.0,
+        "fragment": false,
+        "kind": "CDS",
+        "length": 1188,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 2,
+        "qend": 1273,
+        "qend_dup": 1272,
+        "qlen": 4361,
+        "qseq": "ATGAAATCTAACAATGCGCTCATCGTCATCCTCGGCACCGTCACCCTGGATGCTGTAGGCATAGGCTTGGTTATGCCGGTACTGCCGGGCCTCTTGCGGGATATCGTCCATTCCGACAGCATCGCCAGTCACTATGGCGTGCTGCTAGCGCTATATGCGTTGATGCAATTTCTATGCGCACCCGTTCTCGGAGCACTGTCCGACCGCTTTGGCCGCCGCCCAGTCCTGCTCGCTTCGCTACTTGGAGCCACTATCGACTACGCGATCATGGCGACCACACCCGTCCTGTGGATCCTCTACGCCGGACGCATCGTGGCCGGCATCACCGGCGCCACAGGTGCGGTTGCTGGCGCCTATATCGCCGACATCACCGATGGGGAAGATCGGGCTCGCCACTTCGGGCTCATGAGCGCTTGTTTCGGCGTGGGTATGGTGGCAGGCCCCGTGGCCGGGGGACTGTTGGGCGCCATCTCCTTGCATGCACCATTCCTTGCGGCGGCGGTGCTCAACGGCCTCAACCTACTACTGGGCTGCTTCCTAATGCAGGAGTCGCATAAGGGAGAGCGTCGACCGATGCCCTTGAGAGCCTTCAACCCAGTCAGCTCCTTCCGGTGGGCGCGGGGCATGACTATCGTCGCCGCACTTATGACTGTCTTCTTTATCATGCAACTCGTAGGACAGGTGCCGGCAGCGCTCTGGGTCATTTTCGGCGAGGACCGCTTTCGCTGGAGCGCGACGATGATCGGCCTGTCGCTTGCGGTATTCGGAATCTTGCACGCCCTCGCTCAAGCCTTCGTCACTGGTCCCGCCACCAAACGTTTCGGCGAGAAGCAGGCCATTATCGCCGGCATGGCGGCCGACGCGCTGGGCTACGTCTTGCTGGCGTTCGCGACGCGAGGCTGGATGGCCTTCCCCATTATGATTCTTCTCGCTTCCGGCGGCATCGGGATGCCCGCGTTGCAGGCCATGCTGTCCAGGCAGGTAGATGACGACCATCAGGGACAGCTTCAAGGATCGCTCGCGGCTCTTACCAGCCTAACTTCGATCACTGGACCGCTGATCGTCACGGCGATTTATGCCGCCTCGGCGAGCACATGGAACGGGTTGGCATGGATTGTAGGCGCCGCCCTATACCTTGTCTGCCTCCCCGCGTTGCGTCGCGGTGCATGGAGCCGGGCCACCTCGACC",
+        "qstart": 85,
+        "qstart_dup": 85,
+        "score": 2970.0,
+        "send": 396,
+        "sframe": 1,
+        "slen": 1188,
+        "sseqid": "P02981",
+        "sstart": 1,
+        "wend": 1094,
+        "wiggle": 178,
+        "wstart": 263
+      },
+      "source": {
+        "database": "swissprot",
+        "database_version": "Release 2021_03",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:4",
+      "canonical_ids": [
+        "rop"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 2106,
+            "start": 1914
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 6.75e-98,
+        "identity": 1.0,
+        "score": 1920.0
+      },
+      "name": "rop",
+      "nucleotide_sequence": "GTGACCAAACAGGAAAAAACCGCCCTTAACATGGCCCGCTTTATCAGAAGCCAGACATTAACGCTTCTGGAGAAACTCAACGAGCTGGACGCGGATGAACAGGCAGACATCTGTGAATCGCTTCACGACCACGCTGATGAGCTTTACCGCAGCTGCCTCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGA",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "Rop protein, which maintains plasmids at low copy number; rop",
+        "Feature": "rop",
+        "Type": "CDS",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 6.75e-98,
+        "fragment": false,
+        "kind": "CDS",
+        "length": 192,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 2106,
+        "qend_dup": 2105,
+        "qlen": 4361,
+        "qseq": "GTGACCAAACAGGAAAAAACCGCCCTTAACATGGCCCGCTTTATCAGAAGCCAGACATTAACGCTTCTGGAGAAACTCAACGAGCTGGACGCGGATGAACAGGCAGACATCTGTGAATCGCTTCACGACCACGCTGATGAGCTTTACCGCAGCTGCCTCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGA",
+        "qstart": 1914,
+        "qstart_dup": 1914,
+        "score": 1920.0,
+        "send": 192,
+        "sframe": 1,
+        "slen": 192,
+        "sseqid": "rop",
+        "sstart": 1,
+        "wend": 2077,
+        "wiggle": 28,
+        "wstart": 1942
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:5",
+      "canonical_ids": [
+        "bom"
+      ],
+      "feature_type": "misc_feature",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 2348,
+            "start": 2207
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 1.51e-69,
+        "identity": 1.0,
+        "score": 1410.0
+      },
+      "name": "bom",
+      "nucleotide_sequence": "CGCAGCCATGACCCAGTCACGTAGCGATAGCGGAGTGTATACTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGG",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "basis of mobility region from pBR322",
+        "Feature": "bom",
+        "Type": "misc_feature",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 1.51e-69,
+        "fragment": false,
+        "kind": "misc_feature",
+        "length": 141,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 2348,
+        "qend_dup": 2347,
+        "qlen": 4361,
+        "qseq": "CGCAGCCATGACCCAGTCACGTAGCGATAGCGGAGTGTATACTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGG",
+        "qstart": 2207,
+        "qstart_dup": 2207,
+        "score": 1410.0,
+        "send": 141,
+        "sframe": 1,
+        "slen": 141,
+        "sseqid": "bom",
+        "sstart": 1,
+        "wend": 2326,
+        "wiggle": 21,
+        "wstart": 2228
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:6",
+      "canonical_ids": [
+        "AmpR_promoter_(4)"
+      ],
+      "feature_type": "promoter",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4258,
+            "start": 4153
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 1.56e-49,
+        "identity": 1.0,
+        "score": 1050.0
+      },
+      "name": "AmpR promoter",
+      "nucleotide_sequence": "ACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCG",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "bla",
+        "Feature": "AmpR promoter",
+        "Type": "promoter",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 1.56e-49,
+        "fragment": false,
+        "kind": "promoter",
+        "length": 105,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 4258,
+        "qend_dup": 8618,
+        "qlen": 4361,
+        "qseq": "ACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCG",
+        "qstart": 4153,
+        "qstart_dup": 8514,
+        "score": 1050.0,
+        "send": 1,
+        "sframe": 1,
+        "slen": 105,
+        "sseqid": "AmpR_promoter_(4)",
+        "sstart": 105,
+        "wend": 4242,
+        "wiggle": 15,
+        "wstart": 4168
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:7",
+      "canonical_ids": [
+        "tet_promoter"
+      ],
+      "feature_type": "promoter",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 38,
+            "start": 9
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": 2.76e-07,
+        "identity": 1.0,
+        "score": 290.0
+      },
+      "name": "tet promoter",
+      "nucleotide_sequence": "TTGACAGCTTATCATCGATAAGCTTTAAT",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "E. coli promoter for tetracycline efflux protein gene",
+        "Feature": "tet promoter",
+        "Type": "promoter",
+        "abs percmatch": 100.0,
+        "db": "snapgene",
+        "evalue": 2.76e-07,
+        "fragment": false,
+        "kind": "promoter",
+        "length": 29,
+        "percmatch": 100.0,
+        "pi_permatch": 100.0,
+        "pident": 100.0,
+        "priority": 1,
+        "qend": 38,
+        "qend_dup": 37,
+        "qlen": 4361,
+        "qseq": "TTGACAGCTTATCATCGATAAGCTTTAAT",
+        "qstart": 9,
+        "qstart_dup": 9,
+        "score": 290.0,
+        "send": 29,
+        "sframe": 1,
+        "slen": 29,
+        "sseqid": "tet_promoter",
+        "sstart": 1,
+        "wend": 33,
+        "wiggle": 4,
+        "wstart": 13
+      },
+      "source": {
+        "database": "snapgene",
+        "database_version": "Downloaded 2021-07-23",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "plannotate:8",
+      "canonical_ids": [
+        "P03852"
+      ],
+      "feature_type": "CDS",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1898,
+            "start": 1517
+          }
+        ],
+        "strand": "-"
+      },
+      "metrics": {
+        "coverage": 0.9621212121212122,
+        "evalue": 8.86e-102,
+        "identity": 0.992,
+        "score": 22.727227272727276
+      },
+      "name": "YPB1_ECOLX",
+      "nucleotide_sequence": "GGGGGATTTCTGTTCATGGGGGTAATGATACCGATGAAACGAGAGAGGATGCTCACGATACGGGTTACTGATGATGAACATGCCCGGTTACTGGAACGTTGTGAGGGTAAACAACTGGCGGTATGGATGCGGCGGGACCAGAGAAAAATCACTCAGGGTCAATGCCAGCGCTTCGTTAATACAGATGTAGGTGTTCCACAGGGTAGCCAGCAGCATCCTGCGATGCAGATCCGGAACATAATGGTGCAGGGCGCTGACTTCCGCGTTTCCAGACTTTACGAAACACGGAAACCGAAGACCATTCATGTTGTTGCTCAGGTCGCAGACGTTTTGCAGCAGCAGTCGCTTCACGTTCGCTCGCGTATCGGTGATTCATTCTGC",
+      "protein_sequence": null,
+      "qualifiers": {
+        "Description": "Protein predicted: Swiss-Prot protein existence level 4. From Escherichia coli.",
+        "Feature": "YPB1_ECOLX",
+        "Type": "CDS",
+        "abs percmatch": 96.21212121212122,
+        "db": "swissprot",
+        "evalue": 8.86e-102,
+        "fragment": false,
+        "kind": "CDS",
+        "length": 381,
+        "percmatch": 96.21212121212122,
+        "pi_permatch": 95.44242424242425,
+        "pident": 99.2,
+        "priority": 5,
+        "qend": 1898,
+        "qend_dup": 6258,
+        "qlen": 4361,
+        "qseq": "GGGGGATTTCTGTTCATGGGGGTAATGATACCGATGAAACGAGAGAGGATGCTCACGATACGGGTTACTGATGATGAACATGCCCGGTTACTGGAACGTTGTGAGGGTAAACAACTGGCGGTATGGATGCGGCGGGACCAGAGAAAAATCACTCAGGGTCAATGCCAGCGCTTCGTTAATACAGATGTAGGTGTTCCACAGGGTAGCCAGCAGCATCCTGCGATGCAGATCCGGAACATAATGGTGCAGGGCGCTGACTTCCGCGTTTCCAGACTTTACGAAACACGGAAACCGAAGACCATTCATGTTGTTGCTCAGGTCGCAGACGTTTTGCAGCAGCAGTCGCTTCACGTTCGCTCGCGTATCGGTGATTCATTCTGC",
+        "qstart": 1517,
+        "qstart_dup": 5878,
+        "score": 22.727227272727276,
+        "send": 132,
+        "sframe": -1,
+        "slen": 396,
+        "sseqid": "P03852",
+        "sstart": 6,
+        "wend": 1840,
+        "wiggle": 57,
+        "wstart": 1574
+      },
+      "source": {
+        "database": "swissprot",
+        "database_version": "Release 2021_03",
+        "provider": "plannotate",
+        "provider_version": "1",
+        "tool_version": "1.2.9"
+      }
+    },
+    {
+      "annotation_id": "amrfinderplus:1",
+      "canonical_ids": [
+        "WP_010891057.1",
+        "tet(C)"
+      ],
+      "feature_type": "antimicrobial_resistance_gene",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 1273,
+            "start": 85
+          }
+        ],
+        "strand": "+"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": null,
+        "identity": 1.0,
+        "score": null
+      },
+      "name": "tet(C)",
+      "nucleotide_sequence": null,
+      "protein_sequence": null,
+      "qualifiers": {
+        "% Coverage of reference": "100.00",
+        "% Identity to reference": "100.00",
+        "Alignment length": "396",
+        "Class": "TETRACYCLINE",
+        "Closest reference accession": "WP_010891057.1",
+        "Closest reference name": "tetracycline efflux MFS transporter Tet(C)",
+        "Contig id": "plasmid_oracle",
+        "Element name": "tetracycline efflux MFS transporter Tet(C)",
+        "Element symbol": "tet(C)",
+        "Hierarchy node": "tet(C)",
+        "Method": "EXACTX",
+        "Reference sequence length": "396",
+        "Scope": "core",
+        "Start": "86",
+        "Stop": "1273",
+        "Strand": "+",
+        "Subclass": "TETRACYCLINE",
+        "Subtype": "AMR",
+        "Target length": "396",
+        "Type": "AMR"
+      },
+      "source": {
+        "database": "AMRFinderPlus",
+        "database_version": "2026-05-15.1",
+        "provider": "amrfinderplus",
+        "provider_version": "1",
+        "tool_version": "4.2.7"
+      }
+    },
+    {
+      "annotation_id": "amrfinderplus:2",
+      "canonical_ids": [
+        "WP_000027057.1",
+        "blaTEM-1"
+      ],
+      "feature_type": "antimicrobial_resistance_gene",
+      "integrity": "complete",
+      "location": {
+        "sequence_length": 4361,
+        "spans": [
+          {
+            "end": 4153,
+            "start": 3295
+          }
+        ],
+        "strand": "-"
+      },
+      "metrics": {
+        "coverage": 1.0,
+        "evalue": null,
+        "identity": 1.0,
+        "score": null
+      },
+      "name": "blaTEM-1",
+      "nucleotide_sequence": null,
+      "protein_sequence": null,
+      "qualifiers": {
+        "% Coverage of reference": "100.00",
+        "% Identity to reference": "100.00",
+        "Alignment length": "286",
+        "Class": "BETA-LACTAM",
+        "Closest reference accession": "WP_000027057.1",
+        "Closest reference name": "broad-spectrum class A beta-lactamase TEM-1",
+        "Contig id": "plasmid_oracle",
+        "Element name": "broad-spectrum class A beta-lactamase TEM-1",
+        "Element symbol": "blaTEM-1",
+        "Hierarchy node": "blaTEM-1",
+        "Method": "ALLELEX",
+        "Reference sequence length": "286",
+        "Scope": "core",
+        "Start": "3296",
+        "Stop": "4153",
+        "Subclass": "BETA-LACTAM",
+        "Subtype": "AMR",
+        "Target length": "286",
+        "Type": "AMR"
+      },
+      "source": {
+        "database": "AMRFinderPlus",
+        "database_version": "2026-05-15.1",
+        "provider": "amrfinderplus",
+        "provider_version": "1",
+        "tool_version": "4.2.7"
+      }
+    }
+  ],
+  "schema_version": "2",
+  "sequence": {
+    "ambiguous_base_count": 0,
+    "bases": "TTCTCATGTTTGACAGCTTATCATCGATAAGCTTTAATGCGGTAGTTTATCACAGTTAAATTGCTAACGCAGTCAGGCACCGTGTATGAAATCTAACAATGCGCTCATCGTCATCCTCGGCACCGTCACCCTGGATGCTGTAGGCATAGGCTTGGTTATGCCGGTACTGCCGGGCCTCTTGCGGGATATCGTCCATTCCGACAGCATCGCCAGTCACTATGGCGTGCTGCTAGCGCTATATGCGTTGATGCAATTTCTATGCGCACCCGTTCTCGGAGCACTGTCCGACCGCTTTGGCCGCCGCCCAGTCCTGCTCGCTTCGCTACTTGGAGCCACTATCGACTACGCGATCATGGCGACCACACCCGTCCTGTGGATCCTCTACGCCGGACGCATCGTGGCCGGCATCACCGGCGCCACAGGTGCGGTTGCTGGCGCCTATATCGCCGACATCACCGATGGGGAAGATCGGGCTCGCCACTTCGGGCTCATGAGCGCTTGTTTCGGCGTGGGTATGGTGGCAGGCCCCGTGGCCGGGGGACTGTTGGGCGCCATCTCCTTGCATGCACCATTCCTTGCGGCGGCGGTGCTCAACGGCCTCAACCTACTACTGGGCTGCTTCCTAATGCAGGAGTCGCATAAGGGAGAGCGTCGACCGATGCCCTTGAGAGCCTTCAACCCAGTCAGCTCCTTCCGGTGGGCGCGGGGCATGACTATCGTCGCCGCACTTATGACTGTCTTCTTTATCATGCAACTCGTAGGACAGGTGCCGGCAGCGCTCTGGGTCATTTTCGGCGAGGACCGCTTTCGCTGGAGCGCGACGATGATCGGCCTGTCGCTTGCGGTATTCGGAATCTTGCACGCCCTCGCTCAAGCCTTCGTCACTGGTCCCGCCACCAAACGTTTCGGCGAGAAGCAGGCCATTATCGCCGGCATGGCGGCCGACGCGCTGGGCTACGTCTTGCTGGCGTTCGCGACGCGAGGCTGGATGGCCTTCCCCATTATGATTCTTCTCGCTTCCGGCGGCATCGGGATGCCCGCGTTGCAGGCCATGCTGTCCAGGCAGGTAGATGACGACCATCAGGGACAGCTTCAAGGATCGCTCGCGGCTCTTACCAGCCTAACTTCGATCACTGGACCGCTGATCGTCACGGCGATTTATGCCGCCTCGGCGAGCACATGGAACGGGTTGGCATGGATTGTAGGCGCCGCCCTATACCTTGTCTGCCTCCCCGCGTTGCGTCGCGGTGCATGGAGCCGGGCCACCTCGACCTGAATGGAAGCCGGCGGCACCTCGCTAACGGATTCACCACTCCAAGAATTGGAGCCAATCAATTCTTGCGGAGAACTGTGAATGCGCAAACCAACCCTTGGCAGAACATATCCATCGCGTCCGCCATCTCCAGCAGCCGCACGCGGCGCATCTCGGGCAGCGTTGGGTCCTGGCCACGGGTGCGCATGATCGTGCTCCTGTCGTTGAGGACCCGGCTAGGCTGGCGGGGTTGCCTTACTGGTTAGCAGAATGAATCACCGATACGCGAGCGAACGTGAAGCGACTGCTGCTGCAAAACGTCTGCGACCTGAGCAACAACATGAATGGTCTTCGGTTTCCGTGTTTCGTAAAGTCTGGAAACGCGGAAGTCAGCGCCCTGCACCATTATGTTCCGGATCTGCATCGCAGGATGCTGCTGGCTACCCTGTGGAACACCTACATCTGTATTAACGAAGCGCTGGCATTGACCCTGAGTGATTTTTCTCTGGTCCCGCCGCATCCATACCGCCAGTTGTTTACCCTCACAACGTTCCAGTAACCGGGCATGTTCATCATCAGTAACCCGTATCGTGAGCATCCTCTCTCGTTTCATCGGTATCATTACCCCCATGAACAGAAATCCCCCTTACACGGAGGCATCAGTGACCAAACAGGAAAAAACCGCCCTTAACATGGCCCGCTTTATCAGAAGCCAGACATTAACGCTTCTGGAGAAACTCAACGAGCTGGACGCGGATGAACAGGCAGACATCTGTGAATCGCTTCACGACCACGCTGATGAGCTTTACCGCAGCTGCCTCGCGCGTTTCGGTGATGACGGTGAAAACCTCTGACACATGCAGCTCCCGGAGACGGTCACAGCTTGTCTGTAAGCGGATGCCGGGAGCAGACAAGCCCGTCAGGGCGCGTCAGCGGGTGTTGGCGGGTGTCGGGGCGCAGCCATGACCCAGTCACGTAGCGATAGCGGAGTGTATACTGGCTTAACTATGCGGCATCAGAGCAGATTGTACTGAGAGTGCACCATATGCGGTGTGAAATACCGCACAGATGCGTAAGGAGAAAATACCGCATCAGGCGCTCTTCCGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGAGCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGTTACCAATGCTTAATCAGTGAGGCACCTATCTCAGCGATCTGTCTATTTCGTTCATCCATAGTTGCCTGACTCCCCGTCGTGTAGATAACTACGATACGGGAGGGCTTACCATCTGGCCCCAGTGCTGCAATGATACCGCGAGACCCACGCTCACCGGCTCCAGATTTATCAGCAATAAACCAGCCAGCCGGAAGGGCCGAGCGCAGAAGTGGTCCTGCAACTTTATCCGCCTCCATCCAGTCTATTAATTGTTGCCGGGAAGCTAGAGTAAGTAGTTCGCCAGTTAATAGTTTGCGCAACGTTGTTGCCATTGCTGCAGGCATCGTGGTGTCACGCTCGTCGTTTGGTATGGCTTCATTCAGCTCCGGTTCCCAACGATCAAGGCGAGTTACATGATCCCCCATGTTGTGCAAAAAAGCGGTTAGCTCCTTCGGTCCTCCGATCGTTGTCAGAAGTAAGTTGGCCGCAGTGTTATCACTCATGGTTATGGCAGCACTGCATAATTCTCTTACTGTCATGCCATCCGTAAGATGCTTTTCTGTGACTGGTGAGTACTCAACCAAGTCATTCTGAGAATAGTGTATGCGGCGACCGAGTTGCTCTTGCCCGGCGTCAACACGGGATAATACCGCGCCACATAGCAGAACTTTAAAAGTGCTCATCATTGGAAAACGTTCTTCGGGGCGAAAACTCTCAAGGATCTTACCGCTGTTGAGATCCAGTTCGATGTAACCCACTCGTGCACCCAACTGATCTTCAGCATCTTTTACTTTCACCAGCGTTTCTGGGTGAGCAAAAACAGGAAGGCAAAATGCCGCAAAAAAGGGAATAAGGGCGACACGGAAATGTTGAATACTCATACTCTTCCTTTTTCAATATTATTGAAGCATTTATCAGGGTTATTGTCTCATGAGCGGATACATATTTGAATGTATTTAGAAAAATAAACAAATAGGGGTTCCGCGCACATTTCCCCGAAAAGTGCCACCTGACGTCTAAGAAACCATTATTATCATGACATTAACCTATAAAAATAGGCGTATCACGAGGCCCTTTCGTCTTCAAGAA",
+    "canonical_checksum": "d1b8f4ab10751a964aa0e7577847a50ba6df018e1c143d6f0aabf676eeebfa81",
+    "checksum": "536042a7485bdabdf49c4d21a306213a098d77d19bdba57a1c6adc76ce2b8372",
+    "gc_fraction": 0.537491401054804,
+    "length": 4361,
+    "topology": "circular",
+    "warnings": []
+  },
+  "source_metadata": {
+    "id": "J01749.1",
+    "source": "tests/fixtures/plasmids/pBR322_J01749.1.fasta"
+  }
+}

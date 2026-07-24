@@ -1,0 +1,24 @@
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.tools/
+.venv/
+__pycache__/
+*.egg-info/
+*.py[cod]
+build/
+dist/
+htmlcov/
+.coverage
+
+# Local editor and agent integrations
+.codex/
+.cursor/
+.gemini/
+.grok/
+.mcp.json
+.vscode/
+.zed/
+config/
+opencode.json
