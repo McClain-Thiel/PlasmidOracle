@@ -31,13 +31,20 @@ schema and let Plasmid Oracle perform the biological checks.
 - AMRFinderPlus AMR, stress, virulence, and point-mutation calls;
 - MOB-suite replicon, relaxase, MPF, oriT, mobility, host-range, cluster, and
   nearest-neighbor characterization;
+- provider capability declarations with conservative absence semantics;
 - deterministic cross-provider evidence resolution with explicit conflicts;
+- stable evidence IDs for annotations, characterization calls, and quality
+  flags;
+- normalized biological concept and sequence-variant fields for downstream
+  evaluators;
 - readable Python summaries, feature queries, and optional DataFrame export;
-- complete tool/database provenance and partial-run manifests;
+- complete tool/database provenance, database manifest digests, and partial-run
+  manifests;
 - schema-versioned JSON round trips with schema-1 migration;
 - content-addressed provider caching keyed by sequence, parameters, tools, and
   databases;
 - bounded provider concurrency and an asynchronous Python entry point;
+- resumable JSONL batch execution with durable per-record output;
 - readable CLI reports, machine-readable JSON, and provider diagnostics;
 - explicit database setup with no annotation-time downloads;
 - deterministic plasmid validity, preset utility, and parsed-requirement
@@ -137,6 +144,9 @@ schema = po.requirement_schema()
 ```
 
 Evaluation never treats a failed or unavailable provider as biological absence.
+Completed providers only support negative findings for concepts they explicitly
+declare as `bounded_catalog` or `exhaustive`; other no-hit results remain
+`unknown`.
 Natural-language prompts should be converted into the generated requirement
 schema before calling `evaluate()`.
 
@@ -269,11 +279,29 @@ Terminal output is a readable report by default. Use `--format json` for JSON
 on stdout. File output defaults to JSON. Use `--tolerant` to return a partial
 result; the default is strict.
 
+Run many records from JSONL with resumable, manifest-last output:
+
+```bash
+plasmid-oracle batch \
+  --input candidates.jsonl \
+  --output candidates.results.jsonl \
+  --mode standard \
+  --threads 16 \
+  --record-workers 4 \
+  --provider-workers 2
+```
+
+Each input line is a JSON object with `sequence` or `seq`, optional `id`, and
+optional `topology`. Batch mode writes one terminal record per plasmid and a
+final manifest line with input, output, and record checksums.
+
 ## Canonical Result
 
 Every raw evidence call records:
 
+- a stable `evidence_id`;
 - feature type, name, identifiers, integrity, sequence, and qualifiers;
+- normalized biological concepts and sequence variants when available;
 - zero-based half-open location, strand, and circular spans;
 - identity, coverage, score, and e-value when available;
 - provider, provider version, tool version, database, and database version.
@@ -285,11 +313,12 @@ currently cover strand, material coordinate, and integrity disagreements.
 Plasmid-level characterization records replicons, relaxases, MPF types, oriT
 sites, mobility, host range, similarity hits, and quality flags. The analysis
 manifest records each requested provider as completed, failed, skipped,
-unavailable, or cached.
+unavailable, or cached, including declared capabilities and database manifest
+digests.
 
-See [the top-down design](docs/design.md) and the
-[architecture decisions](docs/adr/) for the detailed contracts and tradeoffs.
-The [hosted documentation](https://mcclain-thiel.github.io/PlasmidOracle/)
+See [the architecture guide](docs/design.md) for the detailed contracts and
+tradeoffs. The
+[hosted documentation](https://mcclain-thiel.github.io/PlasmidOracle/)
 provides the user guide and API overview. The
 [third-party inventory](docs/third-party.md) records tool and database license
 boundaries. Release mechanics are documented in

@@ -1,6 +1,6 @@
 # Third-Party Software and Data
 
-Status: dependency inventory for the `0.2.0a0` release
+Status: dependency inventory for the `0.2.0a1` release
 
 This document is an engineering inventory, not legal advice. Plasmid Oracle is
 distributed under GPL-3.0-only, matching the license of its required Pyrodigal

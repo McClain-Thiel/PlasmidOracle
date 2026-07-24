@@ -7,11 +7,13 @@ from typing import Literal, cast
 import pyrodigal
 
 from plasmid_oracle.model import (
+    AbsenceSemantics,
     Annotation,
     AnnotationSource,
     EvidenceMetrics,
     Integrity,
     Location,
+    ProviderCapability,
     SequenceInfo,
     Strand,
     Topology,
@@ -88,6 +90,13 @@ class PyrodigalProvider:
         name="pyrodigal",
         version=_ADAPTER_VERSION,
         modes=("minimal", "fast", "standard", "deep"),
+        capabilities=(
+            ProviderCapability(
+                concept="coding_sequence",
+                absence_semantics=AbsenceSemantics.POSITIVE_ONLY,
+                scope={"method": "ab initio gene_prediction"},
+            ),
+        ),
     )
 
     def __post_init__(self) -> None:
@@ -211,4 +220,5 @@ class PyrodigalProvider:
             available=True,
             provider_version=self.spec.version,
             tool_version=_TOOL_VERSION,
+            capabilities=self.spec.capabilities,
         )

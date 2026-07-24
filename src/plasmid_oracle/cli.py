@@ -9,7 +9,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from plasmid_oracle import __version__
-from plasmid_oracle.api import annotate
+from plasmid_oracle.api import annotate, annotate_jsonl
 from plasmid_oracle.databases import setup as setup_database
 from plasmid_oracle.errors import PlasmidOracleError
 from plasmid_oracle.pipeline import DoctorReport, doctor
@@ -45,6 +45,23 @@ def _doctor_payload(report: DoctorReport) -> dict[str, object]:
                 "provider_version": provider.provider_version,
                 "tool_version": provider.tool_version,
                 "database_versions": dict(provider.database_versions),
+                "database_manifests": [
+                    {
+                        "database": item.database,
+                        "version": item.version,
+                        "manifest_sha256": item.manifest_sha256,
+                        "identity": dict(item.identity),
+                    }
+                    for item in provider.database_manifests
+                ],
+                "capabilities": [
+                    {
+                        "concept": capability.concept,
+                        "absence_semantics": str(capability.absence_semantics),
+                        "scope": dict(capability.scope),
+                    }
+                    for capability in provider.capabilities
+                ],
                 "issues": list(provider.issues),
             }
             for provider in report.providers
@@ -99,6 +116,52 @@ def _parser() -> argparse.ArgumentParser:
         choices=("text", "json"),
         help="Output format; defaults to text on stdout and JSON for files",
     )
+
+    batch_parser = commands.add_parser("batch", help="Annotate JSONL records")
+    batch_parser.add_argument("--input", type=Path, required=True, help="Input JSONL file")
+    batch_parser.add_argument("--output", type=Path, required=True, help="Output JSONL file")
+    batch_parser.add_argument(
+        "--topology",
+        choices=("circular", "linear"),
+        default="circular",
+        help="Default topology for records without a topology field",
+    )
+    batch_parser.add_argument(
+        "--mode",
+        choices=("minimal", "fast", "standard", "deep"),
+        default="minimal",
+    )
+    batch_parser.add_argument("--threads", type=int, default=1)
+    batch_parser.add_argument(
+        "--record-workers",
+        type=int,
+        default=1,
+        help="Maximum concurrent plasmid records within the total thread budget",
+    )
+    batch_parser.add_argument(
+        "--provider-workers",
+        type=int,
+        default=1,
+        help="Maximum concurrent providers per active record",
+    )
+    batch_parser.add_argument("--timeout", type=float, default=600.0)
+    batch_parser.add_argument("--cache-dir", type=Path)
+    batch_parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable content-addressed provider caching for batch records",
+    )
+    batch_parser.add_argument(
+        "--tolerant",
+        action="store_true",
+        help="Write partial records instead of failing a record on provider errors",
+    )
+    batch_parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Rewrite the output JSONL instead of preserving terminal records",
+    )
+    batch_parser.add_argument("--json", action="store_true", help="Print summary as JSON")
 
     doctor_parser = commands.add_parser("doctor", help="Check provider readiness")
     doctor_parser.add_argument(
@@ -164,6 +227,34 @@ def main(argv: Sequence[str] | None = None) -> int:
                 if result.path is not None:
                     print(f"Path: {result.path}")
             return 0
+
+        if arguments.command == "batch":
+            summary = annotate_jsonl(
+                input_path=arguments.input,
+                output_path=arguments.output,
+                topology=arguments.topology,
+                mode=arguments.mode,
+                strict=not arguments.tolerant,
+                threads=arguments.threads,
+                timeout_seconds=arguments.timeout,
+                cache=not arguments.no_cache,
+                cache_dir=arguments.cache_dir,
+                provider_workers=arguments.provider_workers,
+                record_workers=arguments.record_workers,
+                resume=not arguments.no_resume,
+            )
+            payload = summary.to_dict()
+            if arguments.json:
+                print(json.dumps(payload, indent=2, sort_keys=True))
+            else:
+                print(
+                    "Batch complete: "
+                    f"{summary.completed_records} completed, "
+                    f"{summary.partial_records} partial, "
+                    f"{summary.failed_records} failed"
+                )
+                print(f"Output: {summary.output_path}")
+            return 0 if summary.failed_records == 0 else 1
 
         metadata: dict[str, object] = {}
         sequence = arguments.sequence

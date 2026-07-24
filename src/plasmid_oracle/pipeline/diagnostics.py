@@ -4,6 +4,8 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
 from plasmid_oracle._immutability import freeze_mapping
+from plasmid_oracle.model import DatabaseIdentity, ProviderCapability
+from plasmid_oracle.model.manifest import database_identities_from_versions
 from plasmid_oracle.pipeline.provider import AnnotationProvider, ProviderContext
 
 
@@ -14,10 +16,19 @@ class ProviderDiagnostic:
     provider_version: str
     tool_version: str | None = None
     database_versions: Mapping[str, str] = field(default_factory=dict)
+    database_manifests: tuple[DatabaseIdentity, ...] = ()
+    capabilities: tuple[ProviderCapability, ...] = ()
     issues: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "database_versions", freeze_mapping(self.database_versions))
+        database_manifests = (
+            tuple(self.database_manifests)
+            if self.database_manifests
+            else database_identities_from_versions(self.database_versions)
+        )
+        object.__setattr__(self, "database_manifests", database_manifests)
+        object.__setattr__(self, "capabilities", tuple(self.capabilities))
         object.__setattr__(self, "issues", tuple(self.issues))
 
 
@@ -59,6 +70,7 @@ def doctor(
                     name=provider.spec.name,
                     available=True,
                     provider_version=provider.spec.version,
+                    capabilities=provider.spec.capabilities,
                     issues=("Custom provider does not expose a preflight diagnostic",),
                 )
             )
@@ -70,7 +82,19 @@ def doctor(
                 name=provider.spec.name,
                 available=False,
                 provider_version=provider.spec.version,
+                capabilities=provider.spec.capabilities,
                 issues=(str(error),),
+            )
+        if not diagnostic.capabilities and provider.spec.capabilities:
+            diagnostic = ProviderDiagnostic(
+                name=diagnostic.name,
+                available=diagnostic.available,
+                provider_version=diagnostic.provider_version,
+                tool_version=diagnostic.tool_version,
+                database_versions=diagnostic.database_versions,
+                database_manifests=diagnostic.database_manifests,
+                capabilities=provider.spec.capabilities,
+                issues=diagnostic.issues,
             )
         diagnostics.append(diagnostic)
     return DoctorReport(mode=mode, providers=tuple(diagnostics))

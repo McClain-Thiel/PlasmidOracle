@@ -49,6 +49,28 @@ testing and custom integrations.
 `po.annotate_async(...)` accepts the same arguments and returns an awaitable
 `Plasmid`.
 
+## Batch annotation
+
+```python
+po.annotate_jsonl(
+    *,
+    input_path: Path,
+    output_path: Path,
+    mode: str = "minimal",
+    threads: int = 1,
+    record_workers: int = 1,
+    provider_workers: int = 1,
+    cache: bool = True,
+    resume: bool = True,
+) -> po.BatchSummary
+```
+
+Each input line is a JSON object with `sequence` or `seq`, optional `id`,
+optional `topology`, and optional `source_metadata`. The output is JSONL: one
+terminal record per input and a final manifest line. Batch records include
+input checksums, result checksums, completed/partial/failed status, and the
+serialized plasmid when annotation succeeds.
+
 ## Inspect a result
 
 A `Plasmid` contains:
@@ -79,8 +101,10 @@ plasmid.to_dataframe()
 
 `Annotation` represents one normalized provider call. It includes:
 
-- a provider-scoped ID, feature type, name, and location;
+- a provider-scoped annotation ID, stable `evidence_id`, feature type, name,
+  and location;
 - provider, tool, and database provenance;
+- normalized biological concepts and sequence variants when available;
 - identity, coverage, score, and e-value when reported;
 - nucleotide and protein sequences when available;
 - complete, partial, interrupted, ambiguous, or unknown integrity.
@@ -95,6 +119,12 @@ plasmid.to_dataframe()
 
 Raw evidence is retained even when a more specific resolved feature is chosen
 for presentation.
+
+Provider runs declare `ProviderCapability` entries. Evaluation only treats a
+no-hit result as absence when a completed or cached provider has a matching
+capability whose `absence_semantics` is `bounded_catalog` or `exhaustive`.
+`positive_only` capabilities can support positive findings but leave no-hit
+questions as `unknown`.
 
 ## Evaluate
 
@@ -126,6 +156,11 @@ po.from_json(payload) -> po.Plasmid
 
 Use these functions instead of serializing dataclasses directly. They own the
 schema version and migration behavior.
+
+Schema 3 serializes stable evidence IDs, normalized concepts, sequence
+variants, provider capabilities, database manifest digests, and cache identity
+when present. Schema 1 and 2 payloads still load through compatibility
+migrations.
 
 ## Provider readiness and setup
 

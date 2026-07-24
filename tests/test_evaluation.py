@@ -40,6 +40,7 @@ def _plasmid(
     sequence: str = "ATCGTGCA" + "ATGC" * 28,
     topology: str = "circular",
     provider_status: po.ProviderStatus = po.ProviderStatus.COMPLETED,
+    capabilities: tuple[po.ProviderCapability, ...] = (),
 ) -> po.Plasmid:
     return po.Plasmid(
         sequence=po.SequenceInfo.from_raw(sequence, topology=topology),
@@ -55,6 +56,7 @@ def _plasmid(
                     name="fixture",
                     status=provider_status,
                     provider_version="1",
+                    capabilities=capabilities,
                     error="fixture provider failed"
                     if provider_status is po.ProviderStatus.FAILED
                     else None,
@@ -98,9 +100,9 @@ def test_lab_vector_utility_requires_selection_marker() -> None:
     report = po.evaluate(plasmid, preset="lab_vector")
 
     assert report.scope is po.EvaluationScope.UTILITY
-    assert report.status is po.EvaluationStatus.FAIL
+    assert report.status is po.EvaluationStatus.UNKNOWN
     assert report.finding("has_replication_component").status is po.EvaluationStatus.PASS
-    assert report.finding("has_selection_component").status is po.EvaluationStatus.FAIL
+    assert report.finding("has_selection_component").status is po.EvaluationStatus.UNKNOWN
 
 
 def test_threshold_configuration_can_make_utility_more_strict() -> None:
@@ -149,6 +151,25 @@ def test_failed_provider_keeps_absence_based_requirements_unknown() -> None:
 
     assert report.status is po.EvaluationStatus.UNKNOWN
     assert report.finding("has_replication_component").status is po.EvaluationStatus.UNKNOWN
+
+
+def test_absence_capability_can_support_a_negative_requirement() -> None:
+    plasmid = _plasmid(
+        (),
+        topology="linear",
+        capabilities=(
+            po.ProviderCapability(
+                concept="replicon",
+                absence_semantics=po.AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "fixture-db"},
+            ),
+        ),
+    )
+
+    report = po.evaluate(plasmid, preset="replicative_plasmid")
+
+    assert report.status is po.EvaluationStatus.FAIL
+    assert report.finding("has_replication_component").status is po.EvaluationStatus.FAIL
 
 
 def test_requirement_fidelity_is_independent_from_baseline_validity() -> None:

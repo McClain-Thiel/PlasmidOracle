@@ -14,6 +14,7 @@ from plasmid_oracle.errors import (
 from plasmid_oracle.model import (
     AnalysisManifest,
     Annotation,
+    Characterization,
     Plasmid,
     ProviderRun,
     ProviderStatus,
@@ -27,7 +28,7 @@ from plasmid_oracle.pipeline.provider import (
 )
 from plasmid_oracle.resolution import resolve_annotations
 
-PIPELINE_VERSION = "0.2.0a0"
+PIPELINE_VERSION = "0.2.0a1"
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,6 +46,7 @@ def _validate_result(
     provider_name: str,
 ) -> None:
     annotation_ids: set[str] = set()
+    evidence_ids: set[str] = set()
     for annotation in result.annotations:
         if not isinstance(annotation, Annotation):
             raise InvalidProviderResultError(
@@ -60,6 +62,34 @@ def _validate_result(
                 f"{annotation.annotation_id!r}"
             )
         annotation_ids.add(annotation.annotation_id)
+        if annotation.evidence_id in evidence_ids:
+            raise InvalidProviderResultError(
+                f"Provider {provider_name!r} returned duplicate evidence ID "
+                f"{annotation.evidence_id!r}"
+            )
+        evidence_ids.add(annotation.evidence_id)
+
+    if not isinstance(result.characterization, Characterization):
+        raise InvalidProviderResultError(
+            f"Provider {provider_name!r} returned a non-Characterization result"
+        )
+    for calls in (
+        result.characterization.replicons,
+        result.characterization.relaxases,
+        result.characterization.mpf_types,
+        result.characterization.orit_sites,
+        result.characterization.mobility,
+        result.characterization.host_range,
+        result.characterization.similarity_hits,
+        result.characterization.quality_flags,
+    ):
+        for call in calls:
+            if call.evidence_id in evidence_ids:
+                raise InvalidProviderResultError(
+                    f"Provider {provider_name!r} returned duplicate evidence ID "
+                    f"{call.evidence_id!r}"
+                )
+            evidence_ids.add(call.evidence_id)
 
 
 def _run_provider(
@@ -113,7 +143,11 @@ def _run_provider(
                             provider_version=spec.version,
                             tool_version=lookup.result.tool_version,
                             database_versions=lookup.result.database_versions,
+                            database_manifests=lookup.result.database_manifests,
+                            capabilities=spec.capabilities,
                             parameters=context.parameters,
+                            diagnostic_identity=identity,
+                            cache_key=digest,
                             runtime_seconds=perf_counter() - started,
                             warnings=lookup.result.warnings,
                         ),
@@ -146,6 +180,7 @@ def _run_provider(
                 name=spec.name,
                 status=status,
                 provider_version=spec.version,
+                capabilities=spec.capabilities,
                 parameters=context.parameters,
                 runtime_seconds=perf_counter() - started,
                 error=str(error),
@@ -174,7 +209,11 @@ def _run_provider(
             provider_version=spec.version,
             tool_version=result.tool_version,
             database_versions=result.database_versions,
+            database_manifests=result.database_manifests,
+            capabilities=spec.capabilities,
             parameters=context.parameters,
+            diagnostic_identity=identity if cache_key is not None else {},
+            cache_key=digest if cache_key is not None else None,
             runtime_seconds=perf_counter() - started,
             warnings=result.warnings,
         ),
@@ -264,6 +303,7 @@ def run_pipeline(
                     name=spec.name,
                     status=ProviderStatus.SKIPPED,
                     provider_version=spec.version,
+                    capabilities=spec.capabilities,
                     parameters=context.parameters,
                     error=f"Provider does not support mode {mode!r}",
                 )

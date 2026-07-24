@@ -21,6 +21,16 @@ The evaluation layer uses three related but independent concepts:
 Absence of an annotation is not automatically a biological absence. If the
 responsible evidence source did not run, failed, or is not capable of ruling out
 novel biology, evaluation returns `unknown` instead of pretending certainty.
+Provider capabilities make that rule explicit:
+
+- `positive_only`: hits are useful, but no-hit means `unknown`;
+- `bounded_catalog`: no-hit can support absence within a declared database and
+  scope;
+- `exhaustive`: no-hit can support absence across a formal search space.
+
+Most biological providers are not exhaustive. AMRFinderPlus, for example, can
+support "no AMR gene in this AMRFinderPlus catalog version" but not "no
+possible resistance mechanism exists."
 
 ## Validity
 
@@ -69,6 +79,10 @@ Starter presets are:
 Presets are intentionally transparent. Reports list each check, its status, the
 evidence IDs used, and why the check passed, failed, warned, or remained
 unknown.
+
+Low-confidence or partial positive evidence can fail a requirement when it does
+not meet configured thresholds. Pure no-hit cases remain `unknown` unless a
+completed provider explicitly supports absence for that concept.
 
 ## Fidelity
 

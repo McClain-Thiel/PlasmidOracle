@@ -15,25 +15,31 @@
 
 Pyrodigal runs in the Python process and predicts coding sequences. Evidence
 includes coordinates, strand, translated sequence, prediction confidence,
-start type, and RBS motif where available.
+start type, and RBS motif where available. Its coding-sequence capability is
+positive-only; no ORF call is not treated as biological absence.
 
 ### pLannotate
 
 pLannotate searches known engineered parts and can identify features such as
 promoters, CDSs, terminators, and origins. It requires its Python extra plus
-`blastn`, `diamond`, `cmscan`, `rg`, and the pLannotate databases.
+`blastn`, `diamond`, `cmscan`, `rg`, and the pLannotate databases. Its
+known-part capabilities are bounded to the installed pLannotate catalog.
 
 ### AMRFinderPlus
 
 AMRFinderPlus contributes antimicrobial resistance, stress, virulence, and
 point-mutation evidence. It runs as the external `amrfinder` executable with a
-versioned NCBI database.
+versioned NCBI database. AMR, stress, virulence, and point-mutation absence is
+bounded to the AMRFinderPlus database version and scope recorded in the
+manifest.
 
 ### MOB-suite
 
 MOB-suite contributes replicon, relaxase, MPF, oriT, mobility, host-range,
 cluster, and nearest-neighbor characterization. It runs `mob_typer` against a
-configured MOB-suite database.
+configured MOB-suite database. Replicon, relaxase, oriT, and mobility absence
+is bounded to the configured MOB-suite database; host-range and similarity
+calls are currently positive-only.
 
 ## Install databases
 
@@ -80,6 +86,8 @@ for provider in report.providers:
 ```
 
 Run `doctor` before a batch so missing tools and databases fail early.
+Machine-readable diagnostics include each provider's declared capabilities and
+database manifest digests.
 
 ## Environment overrides
 
@@ -99,7 +107,8 @@ path is otherwise supplied by the provider configuration.
 
     `unavailable`, `failed`, and `skipped` providers mean that the relevant
     biological question was not fully tested. They do not mean that a feature
-    is absent.
+    is absent. Completed positive-only providers also do not support absence
+    claims.
 
 Known-part annotation is also not equivalent to de novo regulatory prediction.
 For example, a promoter not recognized by pLannotate may still be functional,

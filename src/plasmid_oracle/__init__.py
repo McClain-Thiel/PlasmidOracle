@@ -1,8 +1,10 @@
 """Evidence-first plasmid annotation and characterization."""
 
 from plasmid_oracle.api import (
+    BatchSummary,
     annotate,
     annotate_async,
+    annotate_jsonl,
     check,
     evaluate,
     plasmid,
@@ -20,11 +22,15 @@ from plasmid_oracle.errors import (
     ProviderUnavailableError,
 )
 from plasmid_oracle.model import (
+    AbsenceSemantics,
     AnalysisManifest,
     Annotation,
     AnnotationSource,
+    BiologicalConcept,
+    BiologicalConceptType,
     Characterization,
     CharacterizationCall,
+    DatabaseIdentity,
     EvaluationConfig,
     EvaluationFinding,
     EvaluationReport,
@@ -34,6 +40,7 @@ from plasmid_oracle.model import (
     Integrity,
     Location,
     Plasmid,
+    ProviderCapability,
     ProviderRun,
     ProviderStatus,
     QualityFlag,
@@ -43,10 +50,12 @@ from plasmid_oracle.model import (
     ResolutionStatus,
     ResolvedAnnotation,
     SequenceInfo,
+    SequenceVariant,
     SequenceWarning,
     Span,
     Strand,
     Topology,
+    VariantCoordinateSystem,
 )
 from plasmid_oracle.pipeline import (
     AnnotationProvider,
@@ -60,16 +69,21 @@ from plasmid_oracle.pipeline import (
 from plasmid_oracle.resolution import resolve_annotations
 from plasmid_oracle.serialization import from_dict, from_json, to_dict, to_json
 
-__version__ = "0.2.0a0"
+__version__ = "0.2.0a1"
 
 __all__ = [
     "AnalysisManifest",
+    "AbsenceSemantics",
     "Annotation",
     "AnnotationProvider",
     "AnnotationSource",
+    "BatchSummary",
+    "BiologicalConcept",
+    "BiologicalConceptType",
     "Characterization",
     "CharacterizationCall",
     "DatabaseSetupResult",
+    "DatabaseIdentity",
     "DoctorReport",
     "EvidenceMetrics",
     "EvaluationConfig",
@@ -85,6 +99,7 @@ __all__ = [
     "Location",
     "Plasmid",
     "PlasmidOracleError",
+    "ProviderCapability",
     "ProviderContext",
     "ProviderDiagnostic",
     "ProviderExecutionError",
@@ -100,13 +115,16 @@ __all__ = [
     "ResolutionStatus",
     "ResolvedAnnotation",
     "SequenceInfo",
+    "SequenceVariant",
     "SequenceWarning",
     "Span",
     "Strand",
     "Topology",
+    "VariantCoordinateSystem",
     "__version__",
     "annotate",
     "annotate_async",
+    "annotate_jsonl",
     "check",
     "doctor",
     "evaluate",

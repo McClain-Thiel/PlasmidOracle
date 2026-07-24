@@ -5,7 +5,14 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from plasmid_oracle._immutability import freeze_mapping
-from plasmid_oracle.model import Annotation, Characterization, SequenceInfo
+from plasmid_oracle.model import (
+    Annotation,
+    Characterization,
+    DatabaseIdentity,
+    ProviderCapability,
+    SequenceInfo,
+)
+from plasmid_oracle.model.manifest import database_identities_from_versions
 
 
 @dataclass(frozen=True, slots=True)
@@ -13,6 +20,7 @@ class ProviderSpec:
     name: str
     version: str
     modes: tuple[str, ...]
+    capabilities: tuple[ProviderCapability, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -22,6 +30,7 @@ class ProviderSpec:
         if not self.modes:
             raise ValueError("Provider must support at least one mode")
         object.__setattr__(self, "modes", tuple(self.modes))
+        object.__setattr__(self, "capabilities", tuple(self.capabilities))
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,11 +54,18 @@ class ProviderResult:
     characterization: Characterization = field(default_factory=Characterization)
     tool_version: str | None = None
     database_versions: Mapping[str, str] = field(default_factory=dict)
+    database_manifests: tuple[DatabaseIdentity, ...] = ()
     warnings: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "annotations", tuple(self.annotations))
         object.__setattr__(self, "database_versions", freeze_mapping(self.database_versions))
+        database_manifests = (
+            tuple(self.database_manifests)
+            if self.database_manifests
+            else database_identities_from_versions(self.database_versions)
+        )
+        object.__setattr__(self, "database_manifests", database_manifests)
         object.__setattr__(self, "warnings", tuple(self.warnings))
 
 

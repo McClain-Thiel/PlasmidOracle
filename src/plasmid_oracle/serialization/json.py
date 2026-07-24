@@ -12,12 +12,16 @@ from plasmid_oracle.model import (
     AnalysisManifest,
     Annotation,
     AnnotationSource,
+    BiologicalConcept,
+    BiologicalConceptType,
     Characterization,
     CharacterizationCall,
+    DatabaseIdentity,
     EvidenceMetrics,
     Integrity,
     Location,
     Plasmid,
+    ProviderCapability,
     ProviderRun,
     ProviderStatus,
     QualityFlag,
@@ -25,15 +29,17 @@ from plasmid_oracle.model import (
     ResolutionStatus,
     ResolvedAnnotation,
     SequenceInfo,
+    SequenceVariant,
     Span,
     Strand,
+    VariantCoordinateSystem,
 )
 from plasmid_oracle.resolution import resolve_annotations
 
 if TYPE_CHECKING:
     from plasmid_oracle.pipeline.provider import ProviderResult
 
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "3"
 
 
 def _json_value(value: Any) -> Any:
@@ -64,7 +70,7 @@ def _resolved_value(annotation: ResolvedAnnotation) -> dict[str, Any]:
         "feature_type": annotation.feature_type,
         "name": annotation.name,
         "location": _json_value(annotation.location),
-        "evidence_ids": [item.annotation_id for item in annotation.evidence],
+        "evidence_ids": [item.evidence_id for item in annotation.evidence],
         "status": annotation.status.value,
         "aliases": list(annotation.aliases),
         "canonical_ids": list(annotation.canonical_ids),
@@ -146,6 +152,12 @@ def _optional_number(value: object, *, context: str) -> float | None:
     return _number(value, context=context)
 
 
+def _optional_int(value: object, *, context: str) -> int | None:
+    if value is None:
+        return None
+    return int(_number(value, context=context))
+
+
 def _strings(value: object, *, context: str) -> tuple[str, ...]:
     return tuple(
         _string(item, context=f"{context} item") for item in _sequence_items(value, context=context)
@@ -218,6 +230,74 @@ def _source(value: object, *, context: str) -> AnnotationSource:
     )
 
 
+def _concept(value: object, *, context: str) -> BiologicalConcept:
+    payload = _mapping(value, context=context)
+    return BiologicalConcept(
+        concept_type=BiologicalConceptType(
+            _string(
+                _required(payload, "concept_type", context=context),
+                context=f"{context}.concept_type",
+            )
+        ),
+        name=_string(_required(payload, "name", context=context), context=f"{context}.name"),
+        canonical_id=_optional_string(
+            payload.get("canonical_id"),
+            context=f"{context}.canonical_id",
+        ),
+        aliases=_strings(payload.get("aliases", ()), context=f"{context}.aliases"),
+        metadata=_mapping(payload.get("metadata", {}), context=f"{context}.metadata"),
+    )
+
+
+def _concepts(value: object, *, context: str) -> tuple[BiologicalConcept, ...]:
+    return tuple(
+        _concept(item, context=f"{context} item")
+        for item in _sequence_items(value, context=context)
+    )
+
+
+def _variant(value: object, *, context: str) -> SequenceVariant:
+    payload = _mapping(value, context=context)
+    return SequenceVariant(
+        canonical_notation=_string(
+            _required(payload, "canonical_notation", context=context),
+            context=f"{context}.canonical_notation",
+        ),
+        coordinate_system=VariantCoordinateSystem(
+            _string(
+                _required(payload, "coordinate_system", context=context),
+                context=f"{context}.coordinate_system",
+            )
+        ),
+        gene=_optional_string(payload.get("gene"), context=f"{context}.gene"),
+        position=_optional_int(payload.get("position"), context=f"{context}.position"),
+        reference_residue=_optional_string(
+            payload.get("reference_residue"),
+            context=f"{context}.reference_residue",
+        ),
+        alternate_residue=_optional_string(
+            payload.get("alternate_residue"),
+            context=f"{context}.alternate_residue",
+        ),
+        reference_nucleotide=_optional_string(
+            payload.get("reference_nucleotide"),
+            context=f"{context}.reference_nucleotide",
+        ),
+        alternate_nucleotide=_optional_string(
+            payload.get("alternate_nucleotide"),
+            context=f"{context}.alternate_nucleotide",
+        ),
+        metadata=_mapping(payload.get("metadata", {}), context=f"{context}.metadata"),
+    )
+
+
+def _variants(value: object, *, context: str) -> tuple[SequenceVariant, ...]:
+    return tuple(
+        _variant(item, context=f"{context} item")
+        for item in _sequence_items(value, context=context)
+    )
+
+
 def _annotation(value: object, *, context: str) -> Annotation:
     payload = _mapping(value, context=context)
     metrics_payload = _mapping(payload.get("metrics", {}), context=f"{context}.metrics")
@@ -276,6 +356,13 @@ def _annotation(value: object, *, context: str) -> Annotation:
             context=f"{context}.protein_sequence",
         ),
         qualifiers=_mapping(payload.get("qualifiers", {}), context=f"{context}.qualifiers"),
+        concepts=_concepts(payload.get("concepts", ()), context=f"{context}.concepts"),
+        variants=_variants(payload.get("variants", ()), context=f"{context}.variants"),
+        evidence_id=_optional_string(
+            payload.get("evidence_id"),
+            context=f"{context}.evidence_id",
+        )
+        or "",
     )
 
 
@@ -292,6 +379,12 @@ def _call(value: object, *, context: str) -> CharacterizationCall:
             context=f"{context}.confidence",
         ),
         qualifiers=_mapping(payload.get("qualifiers", {}), context=f"{context}.qualifiers"),
+        concepts=_concepts(payload.get("concepts", ()), context=f"{context}.concepts"),
+        evidence_id=_optional_string(
+            payload.get("evidence_id"),
+            context=f"{context}.evidence_id",
+        )
+        or "",
     )
 
 
@@ -332,6 +425,11 @@ def _characterization(value: object) -> Characterization:
                     if source_value is not None
                     else None
                 ),
+                evidence_id=_optional_string(
+                    flag.get("evidence_id"),
+                    context="quality flag.evidence_id",
+                )
+                or "",
             )
         )
     return Characterization(
@@ -343,6 +441,51 @@ def _characterization(value: object) -> Characterization:
         host_range=_calls(payload, "host_range", context="characterization"),
         similarity_hits=_calls(payload, "similarity_hits", context="characterization"),
         quality_flags=tuple(quality_flags),
+    )
+
+
+def _database_identity(value: object, *, context: str) -> DatabaseIdentity:
+    payload = _mapping(value, context=context)
+    return DatabaseIdentity(
+        database=_string(
+            _required(payload, "database", context=context),
+            context=f"{context}.database",
+        ),
+        version=_optional_string(payload.get("version"), context=f"{context}.version"),
+        manifest_sha256=_optional_string(
+            payload.get("manifest_sha256"),
+            context=f"{context}.manifest_sha256",
+        ),
+        identity=_mapping(payload.get("identity", {}), context=f"{context}.identity"),
+    )
+
+
+def _database_identities(value: object, *, context: str) -> tuple[DatabaseIdentity, ...]:
+    return tuple(
+        _database_identity(item, context=f"{context} item")
+        for item in _sequence_items(value, context=context)
+    )
+
+
+def _provider_capability(value: object, *, context: str) -> ProviderCapability:
+    payload = _mapping(value, context=context)
+    return ProviderCapability(
+        concept=_string(
+            _required(payload, "concept", context=context),
+            context=f"{context}.concept",
+        ),
+        absence_semantics=_string(
+            payload.get("absence_semantics", "positive_only"),
+            context=f"{context}.absence_semantics",
+        ),
+        scope=_mapping(payload.get("scope", {}), context=f"{context}.scope"),
+    )
+
+
+def _provider_capabilities(value: object, *, context: str) -> tuple[ProviderCapability, ...]:
+    return tuple(
+        _provider_capability(item, context=f"{context} item")
+        for item in _sequence_items(value, context=context)
     )
 
 
@@ -371,7 +514,20 @@ def _provider_run(value: object, *, context: str) -> ProviderRun:
                 context=f"{context}.database_versions",
             ).items()
         },
+        database_manifests=_database_identities(
+            payload.get("database_manifests", ()),
+            context=f"{context}.database_manifests",
+        ),
+        capabilities=_provider_capabilities(
+            payload.get("capabilities", ()),
+            context=f"{context}.capabilities",
+        ),
         parameters=_mapping(payload.get("parameters", {}), context=f"{context}.parameters"),
+        diagnostic_identity=_mapping(
+            payload.get("diagnostic_identity", {}),
+            context=f"{context}.diagnostic_identity",
+        ),
+        cache_key=_optional_string(payload.get("cache_key"), context=f"{context}.cache_key"),
         runtime_seconds=_number(
             payload.get("runtime_seconds", 0.0),
             context=f"{context}.runtime_seconds",
@@ -512,9 +668,9 @@ def _from_dict(value: Mapping[str, Any]) -> Plasmid:
         _required(payload, "schema_version", context="plasmid"),
         context="schema_version",
     )
-    if version not in {"1", SCHEMA_VERSION}:
+    if version not in {"1", "2", SCHEMA_VERSION}:
         raise InvalidSerializedPlasmidError(
-            f"Unsupported plasmid schema version {version!r}; expected 1 or {SCHEMA_VERSION}"
+            f"Unsupported plasmid schema version {version!r}; expected 1, 2, or {SCHEMA_VERSION}"
         )
 
     sequence = _sequence(_required(payload, "sequence", context="plasmid"))
@@ -526,8 +682,14 @@ def _from_dict(value: Mapping[str, Any]) -> Plasmid:
             context=evidence_key,
         )
     )
-    evidence_by_id = {item.annotation_id: item for item in evidence}
+    evidence_by_id = {item.evidence_id: item for item in evidence}
     if len(evidence_by_id) != len(evidence):
+        raise InvalidSerializedPlasmidError("Evidence IDs must be unique")
+    evidence_by_reference: dict[str, Annotation] = dict(evidence_by_id)
+    for item in evidence:
+        evidence_by_reference.setdefault(item.annotation_id, item)
+    annotation_ids = {item.annotation_id for item in evidence}
+    if len(annotation_ids) != len(evidence):
         raise InvalidSerializedPlasmidError("Evidence annotation IDs must be unique")
 
     annotations = (
@@ -536,7 +698,7 @@ def _from_dict(value: Mapping[str, Any]) -> Plasmid:
         else tuple(
             _resolved(
                 item,
-                evidence_by_id=evidence_by_id,
+                evidence_by_id=evidence_by_reference,
                 context="annotations item",
             )
             for item in _sequence_items(
@@ -583,6 +745,7 @@ def provider_result_to_dict(result: ProviderResult) -> dict[str, Any]:
         "characterization": _json_value(result.characterization),
         "tool_version": result.tool_version,
         "database_versions": _json_value(result.database_versions),
+        "database_manifests": _json_value(result.database_manifests),
         "warnings": list(result.warnings),
     }
 
@@ -614,6 +777,10 @@ def provider_result_from_dict(value: Mapping[str, Any]) -> ProviderResult:
                 context="cached provider result.database_versions",
             ).items()
         },
+        database_manifests=_database_identities(
+            payload.get("database_manifests", ()),
+            context="cached provider result.database_manifests",
+        ),
         warnings=_strings(
             payload.get("warnings", ()),
             context="cached provider result.warnings",

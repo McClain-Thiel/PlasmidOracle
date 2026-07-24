@@ -10,8 +10,18 @@ characteristics.
 !!! warning "Alpha software"
 
     The current alpha implements annotation and evidence resolution. Natural
-    language requirements, transcriptional-unit inference, and capability
-    evaluation are roadmap work.
+    language requirements and transcriptional-unit inference are roadmap work.
+
+## Where to go
+
+| Need | Start here |
+| --- | --- |
+| Run your first plasmid locally | [Getting Started](getting-started.md) |
+| Annotate many records from files | [Command Line](cli.md#annotate-a-jsonl-batch) |
+| Understand pass/fail/unknown results | [Evaluation](evaluation.md) |
+| Use Plasmid Oracle from Python | [Python API](python-api.md) |
+| Set up external tools and databases | [Providers and Databases](providers.md) |
+| See the system boundaries | [Architecture](design.md) |
 
 ## What it does
 
@@ -22,8 +32,10 @@ Given a DNA sequence, Plasmid Oracle can:
 - annotate known engineered parts with pLannotate;
 - identify AMR, stress, and virulence determinants with AMRFinderPlus;
 - characterize replicons and mobility with MOB-suite;
+- preserve stable evidence IDs for annotations and plasmid-level facts;
 - reconcile compatible calls without discarding the underlying evidence;
 - evaluate plasmid validity and named-use-case utility from normalized evidence;
+- run resumable JSONL batches with manifest-last output;
 - serialize a complete, reproducible result to schema-versioned JSON.
 
 ## The core contract
@@ -33,10 +45,10 @@ Every analysis keeps three kinds of information separate:
 1. **Evidence** records exactly what each provider reported.
 2. **Resolved annotations** combine compatible calls and expose conflicts.
 3. **The analysis manifest** records tools, databases, parameters, and provider
-   outcomes.
+   outcomes, including capability declarations and database identity digests.
 
-This means an unavailable database is never silently interpreted as the
-absence of a biological feature.
+This means an unavailable database, failed provider, or positive-only search is
+never silently interpreted as the absence of a biological feature.
 
 ## Smallest useful example
 
@@ -66,7 +78,8 @@ claim that:
 - a detected gene is expressed in a particular host;
 - a promoter, CDS, and terminator form one transcriptional unit;
 - a natural-language prompt has been faithfully parsed without validation;
-- failure to detect a feature proves biological absence.
+- failure to detect a feature proves biological absence unless a completed
+  provider explicitly supports absence for that concept.
 
 Those conclusions belong to the evaluation layer built on the normalized result.
 See [Evaluation](evaluation.md) for the validity, utility, and fidelity split.

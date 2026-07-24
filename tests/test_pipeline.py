@@ -104,6 +104,7 @@ def test_annotate_runs_injected_providers_and_builds_a_manifest() -> None:
     assert len(plasmid.annotations) == 1
     assert plasmid.annotations[0].name == "Example origin"
     assert plasmid.characterization.replicons[0].name == "Example"
+    assert plasmid.characterization.replicons[0].evidence_id.startswith("characterization:")
     assert plasmid.source_metadata == {"id": "p-test"}
     assert plasmid.analysis.mode == "fast"
     assert len(plasmid.analysis.provider_runs) == 1
@@ -113,6 +114,8 @@ def test_annotate_runs_injected_providers_and_builds_a_manifest() -> None:
     assert run.status is po.ProviderStatus.COMPLETED
     assert run.provider_version == "1.2.3"
     assert run.database_versions == {"example-db": "2026.07"}
+    assert run.database_manifests[0].database == "example-db"
+    assert run.database_manifests[0].manifest_sha256
     assert run.warnings == ("example warning",)
     assert run.runtime_seconds >= 0
 

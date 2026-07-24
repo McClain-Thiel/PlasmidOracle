@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Iterable
 from statistics import median
@@ -38,6 +39,7 @@ _INTEGRITY_SEVERITY = {
     Integrity.PARTIAL: 3,
     Integrity.INTERRUPTED: 4,
 }
+_NAME_TOKEN = re.compile(r"[^a-z0-9]+")
 
 
 def _feature_family(feature_type: str) -> str:
@@ -80,17 +82,86 @@ def _is_contained_fragment(candidate: Annotation, other: Annotation) -> bool:
     )
 
 
+def _normalized_name(value: str) -> str:
+    return _NAME_TOKEN.sub("", value.casefold())
+
+
+def _names_compatible(left: Annotation, right: Annotation) -> bool:
+    if not (_specific_name(left) and _specific_name(right)):
+        return False
+    left_name = _normalized_name(left.name)
+    right_name = _normalized_name(right.name)
+    if not left_name or not right_name:
+        return False
+    return (
+        left_name == right_name
+        or (len(left_name) >= 4 and left_name in right_name)
+        or (len(right_name) >= 4 and right_name in left_name)
+    )
+
+
+def _canonical_ids(annotation: Annotation) -> set[str]:
+    identifiers = {identifier.casefold() for identifier in annotation.canonical_ids}
+    identifiers.update(
+        concept.canonical_id.casefold()
+        for concept in annotation.concepts
+        if concept.canonical_id is not None
+    )
+    return identifiers
+
+
+def _sequences_compatible(left: Annotation, right: Annotation) -> bool:
+    for left_sequence, right_sequence in (
+        (left.protein_sequence, right.protein_sequence),
+        (left.nucleotide_sequence, right.nucleotide_sequence),
+    ):
+        if left_sequence is None or right_sequence is None:
+            continue
+        left_normalized = left_sequence.casefold()
+        right_normalized = right_sequence.casefold()
+        if left_normalized == right_normalized:
+            return True
+        shorter, longer = sorted((left_normalized, right_normalized), key=len)
+        if len(shorter) >= 30 and shorter in longer:
+            return True
+    return False
+
+
+def _variants_compatible(left: Annotation, right: Annotation) -> bool:
+    left_variants = {variant.canonical_notation.casefold() for variant in left.variants}
+    right_variants = {variant.canonical_notation.casefold() for variant in right.variants}
+    return bool(left_variants and right_variants and left_variants & right_variants)
+
+
+def _coding_identity_signal(left: Annotation, right: Annotation) -> bool:
+    left_ids = _canonical_ids(left)
+    right_ids = _canonical_ids(right)
+    return (
+        bool(left_ids and right_ids and left_ids & right_ids)
+        or _names_compatible(left, right)
+        or _sequences_compatible(left, right)
+        or _variants_compatible(left, right)
+    )
+
+
 def _compatible(left: Annotation, right: Annotation, *, threshold: float) -> bool:
     if left.location.sequence_length != right.location.sequence_length:
         return False
-    if _feature_family(left.feature_type) != _feature_family(right.feature_type):
+    left_family = _feature_family(left.feature_type)
+    right_family = _feature_family(right.feature_type)
+    if left_family != right_family:
         return False
     if _is_contained_fragment(left, right) or _is_contained_fragment(right, left):
         return True
     overlap = _overlap(left.location, right.location)
-    return (
+    coordinate_match = (
         overlap / left.location.length >= threshold and overlap / right.location.length >= threshold
     )
+    if not coordinate_match:
+        return False
+    if left_family != "coding":
+        return True
+    return _coding_identity_signal(left, right)
 
 
 def _evidence_sort_key(annotation: Annotation) -> tuple[object, ...]:
@@ -100,6 +171,7 @@ def _evidence_sort_key(annotation: Annotation) -> tuple[object, ...]:
         _feature_family(annotation.feature_type),
         annotation.source.provider.casefold(),
         annotation.annotation_id,
+        annotation.evidence_id,
     )
 
 
@@ -211,7 +283,7 @@ def _primary_evidence(cluster: tuple[Annotation, ...]) -> tuple[Annotation, ...]
 
 
 def _conflicts(cluster: tuple[Annotation, ...]) -> tuple[ResolutionConflict, ...]:
-    evidence_ids = tuple(item.annotation_id for item in cluster)
+    evidence_ids = tuple(item.evidence_id for item in cluster)
     primary = _primary_evidence(cluster)
     conflicts: list[ResolutionConflict] = []
     strands = {
@@ -267,6 +339,12 @@ def _resolve_cluster(
         if _specific_name(item) and item.name.casefold() != representative.name.casefold()
     }
     canonical_ids = {canonical_id for item in ordered for canonical_id in item.canonical_ids}
+    canonical_ids.update(
+        concept.canonical_id
+        for item in ordered
+        for concept in item.concepts
+        if concept.canonical_id is not None
+    )
     primary = _primary_evidence(ordered)
     integrity = max(
         (Integrity(item.integrity) for item in primary),

@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,14 +12,20 @@ from typing import ClassVar
 from plasmid_oracle.errors import ProviderUnavailableError
 from plasmid_oracle.execution import ProcessRunner, SubprocessRunner
 from plasmid_oracle.model import (
+    AbsenceSemantics,
     Annotation,
     AnnotationSource,
+    BiologicalConcept,
+    BiologicalConceptType,
     EvidenceMetrics,
     Integrity,
     Location,
+    ProviderCapability,
     SequenceInfo,
+    SequenceVariant,
     Strand,
     Topology,
+    VariantCoordinateSystem,
 )
 from plasmid_oracle.pipeline import (
     ProviderContext,
@@ -63,6 +70,82 @@ def _feature_type(element_type: str | None, subtype: str | None, method: str | N
     if normalized_type == "STRESS":
         return "stress_response_gene"
     return "amrfinder_hit"
+
+
+def _concepts(
+    *,
+    feature_type: str,
+    symbol: str | None,
+    element_name: str | None,
+    accession: str | None,
+    hierarchy: str | None,
+    typed_row: dict[str, object],
+) -> tuple[BiologicalConcept, ...]:
+    name = symbol or element_name
+    if name is None:
+        return ()
+    aliases = tuple(
+        value for value in (element_name, hierarchy) if value is not None and value != name
+    )
+    metadata = {
+        key: value
+        for key, value in {
+            "class": first_text(typed_row, "Class"),
+            "subclass": first_text(typed_row, "Subclass"),
+        }.items()
+        if value is not None
+    }
+    concept_type = (
+        BiologicalConceptType.RESISTANCE_MARKER
+        if feature_type == "antimicrobial_resistance_gene"
+        else BiologicalConceptType.SEQUENCE_VARIANT
+        if feature_type == "sequence_variant"
+        else BiologicalConceptType.GENE
+    )
+    return (
+        BiologicalConcept(
+            concept_type=concept_type,
+            name=name,
+            canonical_id=accession or hierarchy,
+            aliases=aliases,
+            metadata=metadata,
+        ),
+    )
+
+
+def _variant(typed_row: dict[str, object], *, gene: str | None) -> SequenceVariant | None:
+    notation = first_text(
+        typed_row,
+        "Element symbol",
+        "Element name",
+        "Mutation",
+        "Point mutation",
+        "Sequence name",
+    )
+    if notation is None:
+        return None
+    match = re.search(
+        r"(?:(?P<gene>[A-Za-z0-9_.-]+)[_:\s-]+)?"
+        r"(?P<reference>[A-Za-z*])(?P<position>\d+)(?P<alternate>[A-Za-z*])",
+        notation,
+    )
+    position = int(match.group("position")) if match is not None else None
+    return SequenceVariant(
+        canonical_notation=notation,
+        coordinate_system=VariantCoordinateSystem.PROTEIN,
+        gene=gene or (match.group("gene") if match is not None else None),
+        position=position,
+        reference_residue=match.group("reference") if match is not None else None,
+        alternate_residue=match.group("alternate") if match is not None else None,
+        metadata={
+            key: value
+            for key, value in {
+                "method": first_text(typed_row, "Method"),
+                "scope": first_text(typed_row, "Scope"),
+            }.items()
+            if value is not None
+        },
+    )
 
 
 def _location_from_amrfinder(
@@ -134,6 +217,8 @@ def parse_amrfinder_tsv(
         )
         hierarchy = first_text(typed_row, "Hierarchy node")
         canonical_ids = tuple(value for value in (accession, hierarchy) if value is not None)
+        feature_type = _feature_type(element_type, subtype, method)
+        variant = _variant(typed_row, gene=symbol) if feature_type == "sequence_variant" else None
         source = AnnotationSource(
             provider="amrfinderplus",
             provider_version=provider_version,
@@ -144,7 +229,7 @@ def parse_amrfinder_tsv(
         annotations.append(
             Annotation(
                 annotation_id=f"amrfinderplus:{len(annotations) + 1}",
-                feature_type=_feature_type(element_type, subtype, method),
+                feature_type=feature_type,
                 name=symbol or element_name or f"AMRFinderPlus hit {len(annotations) + 1}",
                 location=location,
                 source=source,
@@ -163,6 +248,15 @@ def parse_amrfinder_tsv(
                     ),
                 ),
                 qualifiers=clean_qualifiers(typed_row),
+                concepts=_concepts(
+                    feature_type=feature_type,
+                    symbol=symbol,
+                    element_name=element_name,
+                    accession=accession,
+                    hierarchy=hierarchy,
+                    typed_row=typed_row,
+                ),
+                variants=(variant,) if variant is not None else (),
             )
         )
 
@@ -201,6 +295,28 @@ class AMRFinderPlusProvider:
         name="amrfinderplus",
         version="1",
         modes=("standard", "deep"),
+        capabilities=(
+            ProviderCapability(
+                concept="antimicrobial_resistance_gene",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "AMRFinderPlus", "organism": None},
+            ),
+            ProviderCapability(
+                concept="sequence_variant",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "AMRFinderPlus", "organism": None},
+            ),
+            ProviderCapability(
+                concept="stress_response_gene",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "AMRFinderPlus", "organism": None},
+            ),
+            ProviderCapability(
+                concept="virulence_factor",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "AMRFinderPlus", "organism": None},
+            ),
+        ),
     )
 
     def run(
@@ -289,4 +405,5 @@ class AMRFinderPlusProvider:
             provider_version=self.spec.version,
             tool_version=tool_version,
             database_versions={"AMRFinderPlus": database_version},
+            capabilities=self.spec.capabilities,
         )

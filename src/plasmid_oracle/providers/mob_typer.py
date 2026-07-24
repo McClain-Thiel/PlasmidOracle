@@ -13,9 +13,13 @@ from typing import ClassVar
 from plasmid_oracle.errors import InvalidProviderResultError, ProviderUnavailableError
 from plasmid_oracle.execution import ProcessRunner, SubprocessRunner
 from plasmid_oracle.model import (
+    AbsenceSemantics,
     AnnotationSource,
+    BiologicalConcept,
+    BiologicalConceptType,
     Characterization,
     CharacterizationCall,
+    ProviderCapability,
     SequenceInfo,
 )
 from plasmid_oracle.pipeline import (
@@ -43,6 +47,7 @@ def _typed_calls(
     *,
     names_field: str,
     accessions_field: str,
+    concept_type: BiologicalConceptType,
     source: AnnotationSource,
 ) -> tuple[CharacterizationCall, ...]:
     names = split_values(row.get(names_field))
@@ -57,6 +62,13 @@ def _typed_calls(
                 name=name,
                 source=source,
                 qualifiers=qualifiers,
+                concepts=(
+                    BiologicalConcept(
+                        concept_type=concept_type,
+                        name=name,
+                        canonical_id=accession,
+                    ),
+                ),
             )
         )
     return tuple(calls)
@@ -84,7 +96,20 @@ def _host_range_calls(
         rank = clean_text(row.get(rank_field))
         if rank is not None:
             qualifiers["rank"] = rank
-        calls.append(CharacterizationCall(name=name, source=source, qualifiers=qualifiers))
+        calls.append(
+            CharacterizationCall(
+                name=name,
+                source=source,
+                qualifiers=qualifiers,
+                concepts=(
+                    BiologicalConcept(
+                        concept_type=BiologicalConceptType.HOST_RANGE,
+                        name=name,
+                        metadata=qualifiers,
+                    ),
+                ),
+            )
+        )
     return tuple(calls)
 
 
@@ -113,7 +138,18 @@ def parse_mob_typer_tsv(
     )
     mobility_name = clean_text(row.get("predicted_mobility"))
     mobility = (
-        (CharacterizationCall(name=mobility_name, source=source),)
+        (
+            CharacterizationCall(
+                name=mobility_name,
+                source=source,
+                concepts=(
+                    BiologicalConcept(
+                        concept_type=BiologicalConceptType.MOBILITY,
+                        name=mobility_name,
+                    ),
+                ),
+            ),
+        )
         if mobility_name is not None
         else ()
     )
@@ -139,6 +175,13 @@ def parse_mob_typer_tsv(
                 name=nearest_neighbor,
                 source=source,
                 qualifiers=qualifiers,
+                concepts=(
+                    BiologicalConcept(
+                        concept_type=BiologicalConceptType.SIMILARITY,
+                        name=nearest_neighbor,
+                        metadata=qualifiers,
+                    ),
+                ),
             ),
         )
 
@@ -147,24 +190,28 @@ def parse_mob_typer_tsv(
             row,
             names_field="rep_type(s)",
             accessions_field="rep_type_accession(s)",
+            concept_type=BiologicalConceptType.REPLICON,
             source=source,
         ),
         relaxases=_typed_calls(
             row,
             names_field="relaxase_type(s)",
             accessions_field="relaxase_type_accession(s)",
+            concept_type=BiologicalConceptType.RELAXASE,
             source=source,
         ),
         mpf_types=_typed_calls(
             row,
             names_field="mpf_type",
             accessions_field="mpf_type_accession(s)",
+            concept_type=BiologicalConceptType.MOBILITY,
             source=source,
         ),
         orit_sites=_typed_calls(
             row,
             names_field="orit_type(s)",
             accessions_field="orit_accession(s)",
+            concept_type=BiologicalConceptType.ORIT,
             source=source,
         ),
         mobility=mobility,
@@ -199,6 +246,38 @@ class MobTyperProvider:
         name="mob_typer",
         version="1",
         modes=("standard", "deep"),
+        capabilities=(
+            ProviderCapability(
+                concept="replicon",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "MOB-suite"},
+            ),
+            ProviderCapability(
+                concept="relaxase",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "MOB-suite"},
+            ),
+            ProviderCapability(
+                concept="orit_site",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "MOB-suite"},
+            ),
+            ProviderCapability(
+                concept="mobility",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "MOB-suite"},
+            ),
+            ProviderCapability(
+                concept="host_range",
+                absence_semantics=AbsenceSemantics.POSITIVE_ONLY,
+                scope={"database": "MOB-suite"},
+            ),
+            ProviderCapability(
+                concept="plasmid_similarity",
+                absence_semantics=AbsenceSemantics.POSITIVE_ONLY,
+                scope={"database": "MOB-suite"},
+            ),
+        ),
     )
 
     def run(
@@ -297,4 +376,5 @@ class MobTyperProvider:
             provider_version=self.spec.version,
             tool_version=version_match.group(1),
             database_versions={"MOB-suite": database_version},
+            capabilities=self.spec.capabilities,
         )

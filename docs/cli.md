@@ -42,6 +42,34 @@ Useful options:
 | `--tolerant` | Preserve partial results instead of failing |
 | `--format` | Force `text` or `json` output |
 
+## Annotate a JSONL batch
+
+```bash
+plasmid-oracle batch \
+  --input candidates.jsonl \
+  --output candidates.results.jsonl \
+  --mode standard \
+  --threads 16 \
+  --record-workers 4 \
+  --provider-workers 2
+```
+
+Each input line must be a JSON object with `sequence` or `seq`. Optional fields
+are `id`, `topology`, and `source_metadata`. Batch mode writes one terminal
+record per input and a final `manifest` record. Existing completed, partial,
+or failed records are preserved on resume when their input checksum still
+matches.
+
+Batch-specific options:
+
+| Option | Meaning |
+| --- | --- |
+| `--record-workers` | Maximum concurrent input records within the total thread budget |
+| `--provider-workers` | Maximum concurrent providers per active record |
+| `--no-cache` | Disable provider result caching; batch caching is enabled by default |
+| `--tolerant` | Write partial records when providers fail |
+| `--no-resume` | Rewrite the output file instead of reusing terminal records |
+
 ## Check providers
 
 ```bash
@@ -67,5 +95,5 @@ refresh.
 | Exit code | Meaning |
 | --- | --- |
 | `0` | Operation completed successfully |
-| `1` | `doctor` found an unavailable provider |
+| `1` | `doctor` found an unavailable provider or a batch wrote failed records |
 | `2` | Input, setup, or provider execution failed |

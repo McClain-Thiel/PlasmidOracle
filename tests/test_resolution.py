@@ -14,6 +14,8 @@ def _evidence(
     strand: str,
     sequence_length: int = 1_000,
     integrity: po.Integrity = po.Integrity.COMPLETE,
+    canonical_ids: tuple[str, ...] = (),
+    protein_sequence: str | None = None,
 ) -> po.Annotation:
     return po.Annotation(
         annotation_id=annotation_id,
@@ -28,6 +30,8 @@ def _evidence(
         ),
         source=po.AnnotationSource(provider=provider, provider_version="1"),
         integrity=integrity,
+        canonical_ids=canonical_ids,
+        protein_sequence=protein_sequence,
     )
 
 
@@ -42,6 +46,7 @@ def test_resolver_groups_compatible_coding_evidence() -> None:
             end=1_276,
             strand="+",
             sequence_length=4_361,
+            protein_sequence="M" + "A" * 120,
         ),
         _evidence(
             annotation_id="plannotate:1",
@@ -52,6 +57,8 @@ def test_resolver_groups_compatible_coding_evidence() -> None:
             end=1_273,
             strand="+",
             sequence_length=4_361,
+            canonical_ids=("AMR:TET",),
+            protein_sequence="M" + "A" * 120,
         ),
         _evidence(
             annotation_id="amrfinder:1",
@@ -62,6 +69,7 @@ def test_resolver_groups_compatible_coding_evidence() -> None:
             end=1_273,
             strand="+",
             sequence_length=4_361,
+            canonical_ids=("AMR:TET",),
         ),
     )
 
@@ -95,6 +103,7 @@ def test_resolver_preserves_and_flags_strand_disagreement() -> None:
             start=100,
             end=300,
             strand="-",
+            canonical_ids=("AMR:BLATEM",),
         ),
         _evidence(
             annotation_id="plannotate:1",
@@ -104,6 +113,7 @@ def test_resolver_preserves_and_flags_strand_disagreement() -> None:
             start=100,
             end=300,
             strand="+",
+            canonical_ids=("AMR:BLATEM",),
         ),
         _evidence(
             annotation_id="amrfinder:1",
@@ -113,6 +123,7 @@ def test_resolver_preserves_and_flags_strand_disagreement() -> None:
             start=103,
             end=300,
             strand="-",
+            canonical_ids=("AMR:BLATEM",),
         ),
     )
 
@@ -124,11 +135,44 @@ def test_resolver_preserves_and_flags_strand_disagreement() -> None:
     assert feature.location.strand is po.Strand.REVERSE
     assert feature.status is po.ResolutionStatus.CONFLICTED
     assert [conflict.code for conflict in feature.conflicts] == ["strand_disagreement"]
-    assert feature.conflicts[0].evidence_ids == (
-        "amrfinder:1",
-        "plannotate:1",
-        "pyrodigal:1",
+    assert feature.conflicts[0].evidence_ids == tuple(sorted(item.evidence_id for item in evidence))
+
+
+def test_anonymous_cds_does_not_bridge_different_overlapping_genes() -> None:
+    bridge = _evidence(
+        annotation_id="pyrodigal:bridge",
+        provider="pyrodigal",
+        feature_type="CDS",
+        name="predicted CDS",
+        start=100,
+        end=300,
+        strand="+",
     )
+    left = _evidence(
+        annotation_id="plannotate:left",
+        provider="plannotate",
+        feature_type="CDS",
+        name="geneA",
+        start=100,
+        end=260,
+        strand="+",
+        canonical_ids=("Gene:A",),
+    )
+    right = _evidence(
+        annotation_id="amrfinder:right",
+        provider="amrfinderplus",
+        feature_type="antimicrobial_resistance_gene",
+        name="geneB",
+        start=120,
+        end=300,
+        strand="+",
+        canonical_ids=("Gene:B",),
+    )
+
+    resolved = po.resolve_annotations((bridge, left, right), overlap_threshold=0.6)
+
+    assert len(resolved) == 3
+    assert {feature.name for feature in resolved} == {"geneA", "geneB", "predicted CDS"}
 
 
 def test_resolver_marks_single_source_and_keeps_unrelated_features_separate() -> None:

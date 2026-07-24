@@ -1,8 +1,10 @@
-# Plasmid Oracle: Top-Down Design
+# Architecture
 
-Status: implemented 0.2 alpha architecture with roadmap items called out explicitly
+This page explains the public shape of Plasmid Oracle: what the package
+promises, where each responsibility lives, and which boundaries keep annotation,
+execution, and evaluation separate.
 
-## 1. Product Contract
+## Product Contract
 
 Plasmid Oracle accepts plasmid DNA and produces a canonical, evidence-backed
 `Plasmid` object.
@@ -18,7 +20,7 @@ The core must answer:
 Requirement evaluation is a consumer of this object. It is not part of the
 annotation engine and must not need to parse raw tool output.
 
-## 2. Scope
+## Scope
 
 ### Initial scope
 
@@ -26,9 +28,12 @@ annotation engine and must not need to parse raw tool output.
 - Raw sequence input through Python and single-record FASTA input through CLI.
 - Strict normalization with topology and sequence identity.
 - Circular-aware normalized annotations.
+- Stable evidence IDs for every serialized evidence fact.
+- Provider capability declarations with explicit absence semantics.
 - pLannotate, Pyrodigal, AMRFinderPlus, and MOB-suite providers.
 - Explicit upstream database installation and version capture.
 - Synchronous and asynchronous Python APIs.
+- Resumable JSONL batch API and CLI.
 - Deterministic evidence resolution with explicit conflicts.
 - Opt-in content-addressed caching.
 - Bounded provider concurrency within a total thread budget.
@@ -50,7 +55,7 @@ annotation engine and must not need to parse raw tool output.
 - A mandatory web service.
 - Nextflow as an in-process Python dependency.
 
-## 3. User Experience
+## User Experience
 
 The primary import is:
 
@@ -83,7 +88,7 @@ plasmid = await po.annotate_async(seq="ATGC...", mode="standard")
 Model instances do not launch subprocesses. All computation enters through the
 pipeline API, which keeps immutable data separate from execution.
 
-## 4. System Context
+## System Context
 
 ```mermaid
 flowchart LR
@@ -99,7 +104,7 @@ flowchart LR
     P3 --> Resolve
     P4 --> Resolve
     Resolve --> Plasmid["Canonical Plasmid"]
-    Plasmid --> Eval["Future evaluators"]
+    Plasmid --> Eval["Evaluators"]
     Compare["Optional similarity backend"] --> Plasmid
 ```
 
@@ -113,7 +118,7 @@ The architecture has five layers:
 
 Dependencies point inward. Domain types do not import tool adapters.
 
-## 5. Canonical Domain Model
+## Canonical Domain Model
 
 ### `SequenceInfo`
 
@@ -154,9 +159,10 @@ the sequence length.
 
 ### `Annotation`
 
-- stable result-local annotation ID;
+- stable result-local annotation ID and stable content-addressed evidence ID;
 - feature type and display name;
 - canonical identifiers where known;
+- normalized biological concepts and structured sequence variants;
 - circular-aware location and strand;
 - integrity: complete, partial, interrupted, ambiguous, or unknown;
 - nucleotide or protein sequence when useful;
@@ -178,7 +184,8 @@ Resolution must not discard the evidence that produced a decision.
 - optional whole-plasmid similarity hits.
 
 These are plasmid-level conclusions rather than arbitrary key-value
-properties. Each call carries provenance or points to supporting annotations.
+properties. Each call carries provenance, a stable evidence ID, normalized
+concepts where available, or points to supporting annotations.
 
 ### `AnalysisManifest`
 
@@ -187,11 +194,14 @@ properties. Each call carries provenance or points to supporting annotations.
 - provider runs in deterministic order;
 - provider and tool versions;
 - database identities and reported versions;
+- database manifest digests;
+- provider capability declarations and absence semantics;
 - status: completed, failed, skipped, unavailable, or cached;
 - runtime and warnings for each provider.
 
-A missing provider is visible in the manifest. Absence of an annotation is not
-treated as proof of absence when the responsible provider did not complete.
+A missing provider is visible in the manifest. Absence of an annotation is
+treated as unknown unless a completed provider explicitly declares
+`bounded_catalog` or `exhaustive` absence semantics for the evaluated concept.
 
 ### `Plasmid`
 
@@ -207,7 +217,7 @@ Plasmid
 
 The object is immutable. Running more analysis returns a new object.
 
-## 6. Provider Boundary
+## Provider Boundary
 
 Providers implement a small protocol:
 
@@ -226,11 +236,13 @@ class AnnotationProvider(Protocol):
 
 - stable provider name;
 - implementation version;
-- the modes in which it participates.
+- the modes in which it participates;
+- the biological concepts it can detect and what a no-hit result means.
 
 Provider-specific construction and `diagnose()` report executable, database,
-and version readiness. Resource classes and richer dependency declarations can
-be added to `ProviderSpec` when parallel scheduling requires them.
+version readiness, capability declarations, and database manifest identities.
+Resource classes and richer dependency declarations can be added to
+`ProviderSpec` when parallel scheduling requires them.
 
 `ProviderResult` contains normalized annotations, characterization calls,
 warnings, and execution metadata. It does not return a Pandas DataFrame as the
@@ -250,7 +262,7 @@ The current alpha does not include a native signature database. Adding one
 would require a separately reviewed data license, provenance manifest, and
 biological benchmark before it could become a default provider.
 
-## 7. Pipeline
+## Pipeline
 
 Pipeline stages are:
 
@@ -262,9 +274,10 @@ Pipeline stages are:
 6. Merge normalized annotations and plasmid-level characterization.
 7. Assemble and return the immutable `Plasmid`.
 
-Provider-result caching, bounded parallel scheduling, and cross-provider
-evidence resolution are implemented. Caching is opt-in and cache hits remain
-explicit in the manifest.
+Provider-result caching, bounded parallel scheduling, cross-provider evidence
+resolution, and resumable JSONL batch execution are implemented. Caching is
+opt-in for single-plasmid annotation and enabled by default for batch runs.
+Cache hits remain explicit in the manifest.
 
 Modes are versioned configurations:
 
@@ -286,10 +299,12 @@ An explicit tolerant policy may return a partial `Plasmid`, but failed or
 unavailable providers remain visible in the manifest. Evaluation must inspect
 provider completeness before making absence-based claims.
 
-## 8. Process Execution
+## Process Execution
 
-Direct Python orchestration is the library default. Nextflow can wrap the CLI
-for batch deployments later, but is not required for single-plasmid analysis.
+Direct Python orchestration is the library default. The JSONL batch API and CLI
+wrap the same single-plasmid pipeline with record-level concurrency, durable
+terminal records, content-addressed provider caching, and a final batch
+manifest.
 
 In-process APIs are preferred when they are stable and isolate global state.
 CLI-only tools use one controlled runner with:
@@ -298,7 +313,6 @@ CLI-only tools use one controlled runner with:
 - private temporary directories;
 - captured standard output and standard error;
 - timeouts and process-group termination;
-- process-group termination;
 - explicit environment variables;
 - executable and database version capture;
 - explicit provider thread counts;
@@ -309,7 +323,7 @@ divided across up to `provider_workers` active providers, preventing each tool
 from independently consuming the full caller budget. Sequential execution
 remains the default.
 
-## 9. Database Lifecycle
+## Database Lifecycle
 
 The wheel contains the canonical schemas and code. Source distributions and
 the repository contain tiny recorded test fixtures.
@@ -335,7 +349,7 @@ No large download occurs merely because `plasmid_oracle` was imported or
 because `annotate()` was called. `setup()` is the only download-triggering
 Plasmid Oracle API.
 
-## 10. Caching
+## Caching
 
 Provider results are content-addressed by:
 
@@ -355,7 +369,7 @@ coordinates are explicitly remapped.
 Cache entries must be written atomically and validated on read. A corrupt or
 schema-incompatible entry will be ignored and reported, not partially consumed.
 
-## 11. Evidence Resolution
+## Evidence Resolution
 
 The current resolver preserves all normalized calls in deterministic provider
 order and conservatively:
@@ -363,6 +377,7 @@ order and conservatively:
 - normalize feature type names and coordinates;
 - retain provider provenance;
 - group highly overlapping compatible calls;
+- require coding calls to share an identity signal before grouping;
 - prefer specific identified features over anonymous ORFs for presentation;
 - retain the anonymous ORF as supporting or conflicting evidence;
 - distinguish full, partial, interrupted, and ambiguous calls;
@@ -375,7 +390,13 @@ Resolution rules are deterministic, versioned, and independently tested. They
 do not infer biological capabilities such as antibiotic compatibility. That
 belongs in later evaluation.
 
-## 12. Evaluation Boundary
+Coding-feature grouping is deliberately stricter than plain reciprocal overlap.
+Compatible calls must share canonical IDs, compatible specific names, exact or
+contained sequences, normalized concepts, or structured sequence variants.
+Anonymous ORFs therefore cannot bridge two different named overlapping genes
+into one resolved feature.
+
+## Evaluation Boundary
 
 Evaluators consume an existing `Plasmid`:
 
@@ -405,7 +426,7 @@ requirement schema is generated from Plasmid Oracle's registered presets and
 checks, then deterministic code performs the biological checks. The LLM layer
 does not inspect raw DNA and does not decide pass/fail status.
 
-## 13. Package Layout
+## Package Layout
 
 ```text
 src/plasmid_oracle/
@@ -445,7 +466,7 @@ src/plasmid_oracle/
 Only modules justified by a tested implementation slice should be created.
 This layout is a boundary map, not a requirement to scaffold empty files.
 
-## 14. Test Strategy
+## Test Strategy
 
 Development uses red-green-refactor.
 
@@ -485,7 +506,7 @@ Separate integration tests run real tools against pinned fixtures.
 Benchmark assertions emphasize identity, coverage, integrity, and calibrated
 false-positive behavior rather than only feature overlap.
 
-## 15. Delivery Slices
+## Delivery Slices
 
 ### Slice 1: canonical core (implemented)
 
@@ -530,7 +551,7 @@ false-positive behavior rather than only feature overlap.
 - evidence-completeness checks;
 - pass, fail, warning, and unknown findings.
 
-## 16. Decisions To Validate With Benchmarks
+## Decisions To Validate With Benchmarks
 
 - Whether the native signature provider earns a place in `fast` mode.
 - Whether pLannotate and Pyrodigal produce enough duplicate ORFs to justify

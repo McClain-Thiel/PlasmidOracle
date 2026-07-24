@@ -37,19 +37,20 @@ theme:
 
 nav:
   - Overview: index.md
-  - Getting Started: getting-started.md
-  - Python API: python-api.md
-  - Evaluation: evaluation.md
-  - Providers and Databases: providers.md
-  - Command Line: cli.md
-  - Design:
+  - Guide:
+      - Getting Started: getting-started.md
+      - Command Line: cli.md
+      - Evaluation: evaluation.md
+  - Reference:
+      - Python API: python-api.md
+      - Providers and Databases: providers.md
       - Architecture: design.md
-      - Provider Execution Boundary: adr/001-provider-execution-boundary.md
-      - Dependency and Database Policy: adr/002-dependency-and-database-policy.md
-      - Evidence Resolution and Caching: adr/003-evidence-resolution-and-caching.md
-  - Development:
-      - Release Process: releasing.md
+  - Project:
       - Third-Party Inventory: third-party.md
+      - Release Process: releasing.md
+
+exclude_docs: |
+  adr/*.md
 
 plugins:
   - search

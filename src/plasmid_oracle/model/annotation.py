@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 from plasmid_oracle._immutability import freeze_mapping
+from plasmid_oracle.model.concepts import BiologicalConcept, SequenceVariant
+from plasmid_oracle.model.identifiers import stable_evidence_id
 from plasmid_oracle.model.location import Location
 
 
@@ -58,6 +60,9 @@ class Annotation:
     nucleotide_sequence: str | None = None
     protein_sequence: str | None = None
     qualifiers: Mapping[str, object] = field(default_factory=dict)
+    concepts: tuple[BiologicalConcept, ...] = ()
+    variants: tuple[SequenceVariant, ...] = ()
+    evidence_id: str = ""
 
     def __post_init__(self) -> None:
         if not self.annotation_id.strip():
@@ -75,3 +80,25 @@ class Annotation:
         object.__setattr__(self, "canonical_ids", tuple(self.canonical_ids))
         object.__setattr__(self, "integrity", integrity)
         object.__setattr__(self, "qualifiers", freeze_mapping(self.qualifiers))
+        object.__setattr__(self, "concepts", tuple(self.concepts))
+        object.__setattr__(self, "variants", tuple(self.variants))
+        evidence_id = self.evidence_id.strip() or stable_evidence_id(
+            "annotation",
+            {
+                "feature_type": self.feature_type,
+                "name": self.name,
+                "location": self.location,
+                "source": self.source,
+                "canonical_ids": self.canonical_ids,
+                "integrity": integrity,
+                "metrics": self.metrics,
+                "nucleotide_sequence": self.nucleotide_sequence,
+                "protein_sequence": self.protein_sequence,
+                "qualifiers": self.qualifiers,
+                "concepts": self.concepts,
+                "variants": self.variants,
+            },
+        )
+        if not evidence_id:
+            raise ValueError("Evidence ID cannot be empty")
+        object.__setattr__(self, "evidence_id", evidence_id)

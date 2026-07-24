@@ -90,13 +90,24 @@ _CHECKS = tuple(
         }
     )
 )
-_KNOWN_PROVIDERS = frozenset({"pyrodigal", "plannotate", "amrfinderplus", "mob_typer"})
-_RELEVANT_PROVIDERS: Mapping[str, frozenset[str]] = {
-    "plasmid_evidence": frozenset({"plannotate", "mob_typer"}),
-    "has_replication_component": frozenset({"plannotate", "mob_typer"}),
-    "has_selection_component": frozenset({"plannotate", "amrfinderplus"}),
-    "selection_marker": frozenset({"plannotate", "amrfinderplus"}),
-    "host": frozenset({"mob_typer"}),
+_ABSENCE_CONCEPTS: Mapping[str, frozenset[str]] = {
+    "plasmid_evidence": frozenset(
+        {
+            "replication_component",
+            "replicon",
+            "orit_site",
+            "mobility",
+            "plasmid_similarity",
+        }
+    ),
+    "has_replication_component": frozenset({"replication_component", "replicon", "origin"}),
+    "has_selection_component": frozenset(
+        {"selectable_marker", "selection_marker", "antimicrobial_resistance_gene"}
+    ),
+    "selection_marker": frozenset(
+        {"selectable_marker", "selection_marker", "antimicrobial_resistance_gene"}
+    ),
+    "host": frozenset({"host_range"}),
 }
 _ANTIBIOTIC_SYNONYMS: Mapping[str, tuple[str, ...]] = {
     "ampicillin": ("ampicillin", "amp", "carbenicillin", "beta-lactam", "bla", "tem"),
@@ -458,11 +469,13 @@ def _check_plasmid_evidence(plasmid: Plasmid, *, config: EvaluationConfig) -> Ev
             evidence_ids=_evidence_ids(replication_features),
         )
     if replication_features or _has_plasmid_characterization(plasmid):
+        evidence_ids = list(_evidence_ids(replication_features))
+        evidence_ids.extend(_characterization_ids(plasmid))
         return EvaluationFinding(
             check="plasmid_evidence",
             status=EvaluationStatus.PASS,
             message="Detected plasmid-associated replication or characterization evidence",
-            evidence_ids=_evidence_ids(replication_features),
+            evidence_ids=tuple(evidence_ids),
         )
     return _absence_finding(
         plasmid,
@@ -486,12 +499,22 @@ def _check_replication_component(
             message=f"Detected replication component: {names}",
             evidence_ids=_evidence_ids(features),
         )
+    candidates = _replication_features(plasmid, config=None)
+    if candidates:
+        names = ", ".join(feature.name for feature in candidates[:3])
+        return EvaluationFinding(
+            check="has_replication_component",
+            status=EvaluationStatus.FAIL,
+            message=f"Replication evidence did not meet configured thresholds: {names}",
+            evidence_ids=_evidence_ids(candidates),
+        )
     if plasmid.characterization.replicons:
         names = ", ".join(call.name for call in plasmid.characterization.replicons[:3])
         return EvaluationFinding(
             check="has_replication_component",
             status=EvaluationStatus.PASS,
             message=f"Detected replicon characterization: {names}",
+            evidence_ids=tuple(call.evidence_id for call in plasmid.characterization.replicons),
         )
     return _absence_finding(
         plasmid,
@@ -516,6 +539,15 @@ def _check_selection_marker(
                 status=EvaluationStatus.PASS,
                 message=f"Detected selection marker evidence: {names}",
                 evidence_ids=_evidence_ids(features),
+            )
+        candidates = _selection_features(plasmid, config=None)
+        if candidates:
+            names = ", ".join(feature.name for feature in candidates[:3])
+            return EvaluationFinding(
+                check="has_selection_component",
+                status=EvaluationStatus.FAIL,
+                message=f"Selection marker evidence did not meet configured thresholds: {names}",
+                evidence_ids=_evidence_ids(candidates),
             )
         return _absence_finding(
             plasmid,
@@ -548,6 +580,16 @@ def _check_selection_marker(
             status=EvaluationStatus.FAIL,
             message=f"Detected selection marker evidence, but not {expected}: {names}",
             evidence_ids=_evidence_ids(features),
+            metadata={"expected": expected},
+        )
+    candidates = _selection_features(plasmid, config=None)
+    if candidates:
+        names = ", ".join(feature.name for feature in candidates[:3])
+        return EvaluationFinding(
+            check="selection_marker",
+            status=EvaluationStatus.FAIL,
+            message=f"Selection marker evidence for {expected} did not meet thresholds: {names}",
+            evidence_ids=_evidence_ids(candidates),
             metadata={"expected": expected},
         )
     return _absence_finding(
@@ -616,6 +658,7 @@ def _check_host(plasmid: Plasmid, *, value: JsonScalar | None) -> EvaluationFind
             check="host",
             status=EvaluationStatus.PASS,
             message=f"Host-range evidence includes {value}",
+            evidence_ids=tuple(call.evidence_id for call in host_range),
             metadata={"expected": str(value)},
         )
     if host_range:
@@ -623,6 +666,7 @@ def _check_host(plasmid: Plasmid, *, value: JsonScalar | None) -> EvaluationFind
             check="host",
             status=EvaluationStatus.UNKNOWN,
             message="Host-range evidence exists but does not confidently prove the requested host",
+            evidence_ids=tuple(call.evidence_id for call in host_range),
             metadata={"expected": str(value) if value is not None else None},
         )
     return _absence_finding(
@@ -639,15 +683,16 @@ def _check_red_flags(plasmid: Plasmid) -> EvaluationFinding:
     for feature in plasmid.annotations:
         if feature.conflicts:
             issues.append(f"{feature.name} has conflicting evidence")
-            evidence_ids.extend(item.annotation_id for item in feature.evidence)
+            evidence_ids.extend(item.evidence_id for item in feature.evidence)
         if feature.feature_type.casefold() in {"rep_origin", "antimicrobial_resistance_gene"} and (
             feature.integrity in {Integrity.PARTIAL, Integrity.INTERRUPTED, Integrity.AMBIGUOUS}
         ):
             issues.append(f"{feature.name} is {feature.integrity.value}")
-            evidence_ids.extend(item.annotation_id for item in feature.evidence)
+            evidence_ids.extend(item.evidence_id for item in feature.evidence)
     for flag in plasmid.characterization.quality_flags:
         if flag.severity.casefold() in {"warning", "error"}:
             issues.append(flag.message)
+            evidence_ids.append(flag.evidence_id)
     if issues:
         return EvaluationFinding(
             check="red_flags",
@@ -694,28 +739,28 @@ def _check_evidence_complete(plasmid: Plasmid) -> EvaluationFinding:
 def _replication_features(
     plasmid: Plasmid,
     *,
-    config: EvaluationConfig,
+    config: EvaluationConfig | None,
 ) -> tuple[ResolvedAnnotation, ...]:
     return tuple(
         feature
         for feature in plasmid.annotations
         if feature.feature_type.strip().casefold()
         in {"rep_origin", "origin_of_replication", "replicon"}
-        and _feature_passes_thresholds(feature, config=config)
+        and (config is None or _feature_passes_thresholds(feature, config=config))
     )
 
 
 def _selection_features(
     plasmid: Plasmid,
     *,
-    config: EvaluationConfig,
+    config: EvaluationConfig | None,
 ) -> tuple[ResolvedAnnotation, ...]:
     return tuple(
         feature
         for feature in plasmid.annotations
         if feature.feature_type.strip().casefold()
         in {"antimicrobial_resistance_gene", "selectable_marker", "selection_marker"}
-        and _feature_passes_thresholds(feature, config=config)
+        and (config is None or _feature_passes_thresholds(feature, config=config))
     )
 
 
@@ -748,7 +793,24 @@ def _has_plasmid_characterization(plasmid: Plasmid) -> bool:
 
 
 def _evidence_ids(features: Sequence[ResolvedAnnotation]) -> tuple[str, ...]:
-    return tuple(evidence.annotation_id for feature in features for evidence in feature.evidence)
+    return tuple(evidence.evidence_id for feature in features for evidence in feature.evidence)
+
+
+def _characterization_ids(plasmid: Plasmid) -> tuple[str, ...]:
+    characterization = plasmid.characterization
+    return tuple(
+        call.evidence_id
+        for calls in (
+            characterization.replicons,
+            characterization.relaxases,
+            characterization.mpf_types,
+            characterization.orit_sites,
+            characterization.mobility,
+            characterization.host_range,
+            characterization.similarity_hits,
+        )
+        for call in calls
+    )
 
 
 def _absence_finding(
@@ -772,18 +834,16 @@ def _absence_finding(
 
 
 def _can_make_absence_claim(plasmid: Plasmid, check_id: str) -> bool:
-    completed = {
-        run.name
-        for run in plasmid.analysis.provider_runs
-        if run.status in {ProviderStatus.COMPLETED, ProviderStatus.CACHED}
-    }
-    if not completed:
+    concepts = _ABSENCE_CONCEPTS.get(check_id, frozenset())
+    if not concepts:
         return False
-    relevant = _RELEVANT_PROVIDERS.get(check_id, frozenset())
-    if completed & relevant:
-        return True
-    custom_completed = completed - _KNOWN_PROVIDERS
-    return bool(custom_completed)
+    for run in plasmid.analysis.provider_runs:
+        if run.status not in {ProviderStatus.COMPLETED, ProviderStatus.CACHED}:
+            continue
+        for capability in run.capabilities:
+            if capability.concept in concepts and capability.supports_absence:
+                return True
+    return False
 
 
 def _selection_matches(feature: ResolvedAnnotation, expected: str) -> bool:

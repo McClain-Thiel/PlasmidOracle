@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 
 from plasmid_oracle._immutability import freeze_mapping
 from plasmid_oracle.model.annotation import AnnotationSource
+from plasmid_oracle.model.concepts import BiologicalConcept
+from plasmid_oracle.model.identifiers import stable_evidence_id
 
 
 @dataclass(frozen=True, slots=True)
@@ -13,6 +15,8 @@ class CharacterizationCall:
     source: AnnotationSource
     confidence: float | None = None
     qualifiers: Mapping[str, object] = field(default_factory=dict)
+    concepts: tuple[BiologicalConcept, ...] = ()
+    evidence_id: str = ""
 
     def __post_init__(self) -> None:
         if not self.name.strip():
@@ -20,6 +24,18 @@ class CharacterizationCall:
         if self.confidence is not None and not 0 <= self.confidence <= 1:
             raise ValueError("confidence must be a fraction between 0 and 1")
         object.__setattr__(self, "qualifiers", freeze_mapping(self.qualifiers))
+        object.__setattr__(self, "concepts", tuple(self.concepts))
+        evidence_id = self.evidence_id.strip() or stable_evidence_id(
+            "characterization",
+            {
+                "name": self.name,
+                "source": self.source,
+                "confidence": self.confidence,
+                "qualifiers": self.qualifiers,
+                "concepts": self.concepts,
+            },
+        )
+        object.__setattr__(self, "evidence_id", evidence_id)
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,6 +44,25 @@ class QualityFlag:
     message: str
     severity: str = "warning"
     source: AnnotationSource | None = None
+    evidence_id: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.code.strip():
+            raise ValueError("Quality flag code cannot be empty")
+        if not self.message.strip():
+            raise ValueError("Quality flag message cannot be empty")
+        if not self.severity.strip():
+            raise ValueError("Quality flag severity cannot be empty")
+        evidence_id = self.evidence_id.strip() or stable_evidence_id(
+            "quality_flag",
+            {
+                "code": self.code,
+                "message": self.message,
+                "severity": self.severity,
+                "source": self.source,
+            },
+        )
+        object.__setattr__(self, "evidence_id", evidence_id)
 
 
 @dataclass(frozen=True, slots=True)

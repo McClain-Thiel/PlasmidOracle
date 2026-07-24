@@ -26,12 +26,13 @@ def test_plasmid_serialization_is_stable_and_json_compatible() -> None:
 
     payload = po.to_dict(plasmid)
 
-    assert payload["schema_version"] == "2"
+    assert payload["schema_version"] == "3"
     assert payload["sequence"]["topology"] == "circular"
     assert payload["sequence"]["bases"] == plasmid.sequence.bases
     assert payload["source_metadata"]["tags"] == ["fixture", "small"]
     assert payload["analysis"]["provider_runs"][0]["name"] == "pyrodigal"
     assert payload["evidence"]
+    assert "evidence_id" in payload["evidence"][0]
     assert payload["annotations"]
     assert "evidence_ids" in payload["annotations"][0]
     assert "evidence" not in payload["annotations"][0]

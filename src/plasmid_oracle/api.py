@@ -5,6 +5,7 @@ from collections.abc import Iterable, Mapping
 from functools import partial
 from pathlib import Path
 
+from plasmid_oracle.batch import BatchSummary, annotate_jsonl
 from plasmid_oracle.evaluation import check, evaluate, requirement_schema, requirements_from_dict
 from plasmid_oracle.model import (
     AnalysisManifest,
@@ -24,6 +25,8 @@ _VALID_MODES = frozenset({"minimal", "fast", "standard", "deep"})
 __all__ = [
     "annotate",
     "annotate_async",
+    "annotate_jsonl",
+    "BatchSummary",
     "check",
     "evaluate",
     "plasmid",

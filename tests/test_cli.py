@@ -62,7 +62,40 @@ def test_cli_file_output_defaults_to_json(tmp_path: Path, capsys) -> None:
 
     assert exit_code == 0
     assert capsys.readouterr().out == ""
-    assert json.loads(output_path.read_text(encoding="utf-8"))["schema_version"] == "2"
+    assert json.loads(output_path.read_text(encoding="utf-8"))["schema_version"] == "3"
+
+
+def test_cli_batch_writes_jsonl_summary(tmp_path: Path, capsys) -> None:
+    input_path = tmp_path / "batch.jsonl"
+    output_path = tmp_path / "batch.out.jsonl"
+    input_path.write_text(
+        json.dumps({"id": "p1", "sequence": "ATGCCGTAGCTAATGCCGTAGCTA"}) + "\n",
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "batch",
+            "--input",
+            str(input_path),
+            "--output",
+            str(output_path),
+            "--mode",
+            "fast",
+            "--no-cache",
+            "--json",
+        ]
+    )
+
+    summary = json.loads(capsys.readouterr().out)
+    output = [
+        json.loads(line)
+        for line in output_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert exit_code == 0
+    assert summary["completed_records"] == 1
+    assert output[-1]["record_type"] == "manifest"
 
 
 def test_cli_doctor_reports_machine_readable_status(capsys) -> None:

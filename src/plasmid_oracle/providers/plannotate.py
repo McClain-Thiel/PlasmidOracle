@@ -13,11 +13,15 @@ from typing import ClassVar
 
 from plasmid_oracle.errors import ProviderUnavailableError
 from plasmid_oracle.model import (
+    AbsenceSemantics,
     Annotation,
     AnnotationSource,
+    BiologicalConcept,
+    BiologicalConceptType,
     EvidenceMetrics,
     Integrity,
     Location,
+    ProviderCapability,
     SequenceInfo,
     Strand,
     Topology,
@@ -73,6 +77,22 @@ def _is_true(value: object) -> bool:
     return str(value).strip().lower() in {"1", "true", "yes"}
 
 
+def _concept_type(feature_type: str, name: str) -> BiologicalConceptType:
+    normalized_type = feature_type.casefold()
+    normalized_name = name.casefold()
+    if normalized_type in {"rep_origin", "origin_of_replication"}:
+        return BiologicalConceptType.ORIGIN
+    if normalized_type == "promoter":
+        return BiologicalConceptType.PROMOTER
+    if normalized_type == "terminator":
+        return BiologicalConceptType.TERMINATOR
+    if "epitope" in normalized_name:
+        return BiologicalConceptType.EPITOPE_TAG
+    if "tag" in normalized_type or "tag" in normalized_name:
+        return BiologicalConceptType.PROTEIN_TAG
+    return BiologicalConceptType.GENE
+
+
 def parse_plannotate_records(
     records: Iterable[Mapping[str, object]],
     *,
@@ -88,6 +108,7 @@ def parse_plannotate_records(
         database = clean_text(row.get("db"))
         accession = clean_text(row.get("sseqid"))
         name = clean_text(row.get("Feature")) or accession or f"pLannotate feature {index}"
+        feature_type = _feature_type(row.get("Type"))
         source = AnnotationSource(
             provider="plannotate",
             provider_version=provider_version,
@@ -104,7 +125,7 @@ def parse_plannotate_records(
         annotations.append(
             Annotation(
                 annotation_id=f"plannotate:{index}",
-                feature_type=_feature_type(row.get("Type")),
+                feature_type=feature_type,
                 name=name,
                 location=Location.from_bounds(
                     start,
@@ -121,6 +142,14 @@ def parse_plannotate_records(
                 metrics=metrics,
                 nucleotide_sequence=clean_text(row.get("qseq")),
                 qualifiers=clean_qualifiers(row),
+                concepts=(
+                    BiologicalConcept(
+                        concept_type=_concept_type(feature_type, name),
+                        name=name,
+                        canonical_id=accession,
+                        aliases=(database,) if database is not None else (),
+                    ),
+                ),
             )
         )
 
@@ -139,6 +168,48 @@ class PlannotateProvider:
         name="plannotate",
         version="1",
         modes=("standard", "deep"),
+        capabilities=(
+            ProviderCapability(
+                concept="engineered_part",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="replication_component",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="selectable_marker",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="promoter",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="origin",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="terminator",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="protein_tag",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+            ProviderCapability(
+                concept="epitope_tag",
+                absence_semantics=AbsenceSemantics.BOUNDED_CATALOG,
+                scope={"database": "pLannotate"},
+            ),
+        ),
     )
 
     def run(
@@ -244,4 +315,5 @@ class PlannotateProvider:
             tool_version=tool_version,
             database_versions=database_versions,
             issues=tuple(issues),
+            capabilities=self.spec.capabilities,
         )

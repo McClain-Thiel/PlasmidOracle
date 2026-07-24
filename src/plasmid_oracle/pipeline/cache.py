@@ -5,7 +5,8 @@ import os
 import re
 import tempfile
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass
+from enum import Enum
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -35,8 +36,12 @@ def default_cache_dir() -> Path:
 
 
 def _canonical(value: object) -> object:
+    if isinstance(value, Enum):
+        return value.value
     if isinstance(value, Mapping):
         return {str(key): _canonical(item) for key, item in value.items()}
+    if is_dataclass(value) and not isinstance(value, type):
+        return {field.name: _canonical(getattr(value, field.name)) for field in fields(value)}
     if isinstance(value, tuple | list):
         return [_canonical(item) for item in value]
     if value is None or isinstance(value, str | int | float | bool):
@@ -59,6 +64,8 @@ def _identity_payload(
         "provider_version": spec.version,
         "tool_version": diagnostic.tool_version,
         "database_versions": dict(diagnostic.database_versions),
+        "database_manifests": _canonical(diagnostic.database_manifests),
+        "capabilities": _canonical(spec.capabilities),
         "parameters": _canonical(context.parameters),
     }
 
